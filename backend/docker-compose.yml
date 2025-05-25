@@ -5,7 +5,7 @@ services:
     container_name: meu-postgres
     restart: always
     environment:
-      POSTGRES_DB: meu_banco
+      POSTGRES_DB: focuzevent
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
     ports:
