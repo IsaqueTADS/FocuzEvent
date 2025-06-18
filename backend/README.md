@@ -4,7 +4,7 @@ FocuzEvent web app.
 
 ## Rfs (Requisitos funcionais)
 
-- [ ] Deve ser possível se cadastrar;
+- [ X ] Deve ser possível se cadastrar;
 - [ ] Deve ser possível se autenticar (login);
 - [ ] Deve ser possível acessar o perfil de um usuário logado;
 - [ ] Deve ser possível recuperar senha;
