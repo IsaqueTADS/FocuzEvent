@@ -17,7 +17,7 @@ FocuzEvent web app.
 
 ## RNs (Regras de negócio)
 
-- [ ] O usuário não pode se cadastrar com um e-mail já em uso;
+- [ X ] O usuário não pode se cadastrar com um e-mail já em uso;
 - [ ] Um evento só pode ser editado ou excluído por quem o criou;
 - [ ] Apenas usuários logados podem realizar postagens
 - [ ] Eventos devem ter endereço completo e cidade;
@@ -26,8 +26,8 @@ FocuzEvent web app.
 
 ## RNFs (Requisitos não-funcionais)
 
-- [ ] A senha do usuário deve estar criptografada (bcrypt);
-- [ ] O sistema deve utilizar banco de dados PostgreSQL;
+- [ X ] A senha do usuário deve estar criptografada (bcrypt);
+- [ X ] O sistema deve utilizar banco de dados PostgreSQL;
 - [ ] O sistema deve utilizar JWT (JSON Web Token) para autenticação e autorização;
 - [ ] O sistema deve ter responsividade para dispositivos móveis;
 - [ ] Criador pode escolher quantidade de dias de impulsionamento;

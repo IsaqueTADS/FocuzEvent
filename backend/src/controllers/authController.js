@@ -6,18 +6,18 @@ export async function criarUsuario(req, res) {
   try {
     const { nome, email, senha } = req.body;
     if (!nome || !email || !senha) {
-      res.status(404).json({ error: "dados inválidos" });
+      res.status(400).json({ error: "dados inválidos" });
       return;
     }
 
-    const UsuarioExiste = await prisma.user.findUnique({
+    const usuarioExiste = await prisma.user.findUnique({
       where: {
         email,
       },
     });
 
-    if (UsuarioExiste) {
-      res.status(400).json({ error: "Email já cadastrado" });
+    if (usuarioExiste) {
+      res.status(403).json({ error: "Email já cadastrado" });
     }
 
     const senhaHash = await bcrypt.hash(senha, 10);
@@ -29,11 +29,36 @@ export async function criarUsuario(req, res) {
         senha: senhaHash,
       },
     });
-    res.status(200).json({ message: "Usuario criado com sucesso" });
+    res.status(201).json({ message: "Usuario criado com sucesso" });
   } catch (error) {
     console.error(error);
+    res
+      .status(500)
+      .json({ error: "Erro interno no servidor ao cadastrar usuario" });
   }
 }
 export async function logarUsuario(req, res) {
   res.status(200);
+}
+
+export async function postarAvatar(req, res) {
+  try {
+    const arquivo = req.file;
+    console.log(arquivo);
+
+    if (!arquivo) {
+      return res.status(400).json({ erro: "Nenhum arquivo foi enviado." });
+    }
+
+    const urlImagem = `http://localhost:3000/${arquivo.filename}`;
+
+    return res.status(200).json({
+      mensagem: "Arquivo enviado com sucesso!",
+      nome: arquivo.filename,
+      caminho: arquivo.path,
+      urlImagem,
+    });
+  } catch (erro) {
+    return res.status(500).json({ erro: erro.message });
+  }
 }

@@ -7,8 +7,18 @@
   "plugins": [
     "simple-import-sort"
   ],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
+  },
   "rules": {
     "no-console": "off",
+    "no-underscore-dangle": [
+      "error",
+      {
+        "allow": ["__filename", "__dirname"]
+      }
+    ],
     "semi": [
       "error",
       "always"
@@ -26,6 +36,12 @@
         "js": "always",
         "mjs": "always"
       }
+    ],
+    "import/no-unresolved": [
+      2,
+      {
+        "commonjs": true
+      }
     ]
   },
   "settings": {
@@ -34,6 +50,10 @@
         "extensions": [
           ".js",
           ".mjs"
+        ],
+        "moduleDirectory": [
+          "node_modules",
+          "src/"
         ]
       }
     }
