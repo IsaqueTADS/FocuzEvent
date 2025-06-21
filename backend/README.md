@@ -5,7 +5,7 @@ FocuzEvent web app.
 ## Rfs (Requisitos funcionais)
 
 - [ X ] Deve ser possível se cadastrar;
-- [ ] Deve ser possível se autenticar (login);
+- [ X ] Deve ser possível se autenticar (login);
 - [ ] Deve ser possível acessar o perfil de um usuário logado;
 - [ ] Deve ser possível recuperar senha;
 - [ ] Deve ser possível criar eventos (apenas logado);
@@ -28,7 +28,7 @@ FocuzEvent web app.
 
 - [ X ] A senha do usuário deve estar criptografada (bcrypt);
 - [ X ] O sistema deve utilizar banco de dados PostgreSQL;
-- [ ] O sistema deve utilizar JWT (JSON Web Token) para autenticação e autorização;
+- [ X ] O sistema deve utilizar JWT (JSON Web Token) para autenticação e autorização;
 - [ ] O sistema deve ter responsividade para dispositivos móveis;
 - [ ] Criador pode escolher quantidade de dias de impulsionamento;
 - [ ]

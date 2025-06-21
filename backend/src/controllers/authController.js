@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 import prisma from "../utils/prisma.js";
 
@@ -38,7 +39,38 @@ export async function criarUsuario(req, res) {
   }
 }
 export async function logarUsuario(req, res) {
-  res.status(200);
+  try {
+    const { email, senha } = req.body;
+    if (!email || !senha) {
+      res.status(400).json({ error: "dados inválidos" });
+      return;
+    }
+
+    const usuario = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!usuario) {
+      res.status(400).json({ error: "Senha ou email inválidos" });
+      return;
+    }
+
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+    if (!senhaValida) {
+      res.status(401).json({ error: "Senha incorreta" });
+      return;
+    }
+
+    const token = jwt.sign({ usuarioId: usuario.id }, process.env.JWT_SECRET, {
+      expiresIn: "3h",
+    });
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro interno ao tentar logar usuarios" });
+  }
 }
 
 export async function postarAvatar(req, res) {
