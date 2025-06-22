@@ -75,19 +75,17 @@ export async function logarUsuario(req, res) {
 
 export async function postarAvatar(req, res) {
   try {
-    const arquivo = req.file;
-    console.log(arquivo);
-
-    if (!arquivo) {
+    const avatar = req.file;
+    if (!avatar) {
       return res.status(400).json({ erro: "Nenhum arquivo foi enviado." });
     }
 
-    const urlImagem = `http://localhost:3000/${arquivo.filename}`;
+    const urlImagem = `http://localhost:3000/perfis/${avatar.filename}`;
 
     return res.status(200).json({
       mensagem: "Arquivo enviado com sucesso!",
-      nome: arquivo.filename,
-      caminho: arquivo.path,
+      nome: avatar.filename,
+      caminho: avatar.path,
       urlImagem,
     });
   } catch (erro) {
