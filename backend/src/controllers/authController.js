@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+import apagarArquivos from "../utils/apagarArquivos.js";
 import prisma from "../utils/prisma.js";
 
 export async function criarUsuario(req, res) {
@@ -73,22 +74,48 @@ export async function logarUsuario(req, res) {
   }
 }
 
-export async function postarAvatar(req, res) {
+export async function atualizarAvatar(req, res) {
   try {
     const avatar = req.file;
+    const { usuarioId } = req;
     if (!avatar) {
       return res.status(400).json({ erro: "Nenhum arquivo foi enviado." });
     }
 
-    const urlImagem = `http://localhost:3000/perfis/${avatar.filename}`;
+    const usuario = await prisma.user.findUnique({
+      where: { id: usuarioId },
+      select: {
+        id: true,
+        foto_url: true,
+      },
+    });
+
+    if (!usuario) {
+      return res.status(401).json({ error: "Usuario não existe" });
+    }
+
+    if (usuario.foto_url) {
+      // console.log(usuario.foto_url?.split("/")[4]);
+
+      const url = new URL(usuario.foto_url);
+      const partes = url.pathname.split("/");
+      const nomeDoArquivo = partes[partes.length - 1];
+      apagarArquivos(nomeDoArquivo, "perfis");
+    }
+
+    const urlAvatar = `http://localhost:3000/perfis/${avatar.filename}`;
+
+    await prisma.user.update({
+      where: { id: usuarioId },
+      data: { foto_url: urlAvatar },
+    });
 
     return res.status(200).json({
-      mensagem: "Arquivo enviado com sucesso!",
-      nome: avatar.filename,
-      caminho: avatar.path,
-      urlImagem,
+      messagem: "Upload do avatar completo com sucesso",
     });
-  } catch (erro) {
-    return res.status(500).json({ erro: erro.message });
+  } catch {
+    return res
+      .status(500)
+      .json({ error: "Erro interno ao fazer upload avatar" });
   }
 }

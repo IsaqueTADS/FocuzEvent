@@ -19,7 +19,15 @@ const armazenamneto = multer.diskStorage({
 
 const uploadAvatar = multer({
   storage: armazenamneto,
-  limits: { fileSize: 1 * 1024 * 1024 * 1204 },
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const tiposPermitidos = ["image/jpeg", "image/png", "image/jpg"];
+    if (tiposPermitidos.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Tipo de arquivo não permitido. Use JPG ou PNG."));
+    }
+  },
 });
 
 export default uploadAvatar;

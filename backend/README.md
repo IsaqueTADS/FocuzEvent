@@ -18,6 +18,7 @@ FocuzEvent web app.
 ## RNs (Regras de negócio)
 
 - [ X ] O usuário não pode se cadastrar com um e-mail já em uso;
+- [ X ] O usuário não pode postar masi de um avatar, ou seja o antigo deve ser apagado;
 - [ ] Um evento só pode ser editado ou excluído por quem o criou;
 - [ ] Apenas usuários logados podem realizar postagens
 - [ ] Eventos devem ter endereço completo e cidade;
