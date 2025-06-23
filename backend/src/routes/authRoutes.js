@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   atualizarAvatar,
+  buscarPerfilUsuario,
   buscarTodosPerfis,
   criarUsuario,
   logarUsuario,
@@ -15,5 +16,6 @@ authRouter.post("/cadastrar", criarUsuario);
 authRouter.post("/logar", logarUsuario);
 authRouter.get("/usuarios", buscarTodosPerfis);
 authRouter.patch("/avatar", autenticacao, uploadAvatar.single("avatar"), atualizarAvatar);
+authRouter.get("/usuario", autenticacao, buscarPerfilUsuario);
 
 export default authRouter;

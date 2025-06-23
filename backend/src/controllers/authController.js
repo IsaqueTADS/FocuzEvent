@@ -138,3 +138,32 @@ export async function buscarTodosPerfis(req, res) {
     res.status(500).json({ error: "Erro interno ao buscar os usuarios" });
   }
 }
+
+export async function buscarPerfilUsuario(req, res) {
+  try {
+    const { usuarioId } = req;
+    const usuario = await prisma.user.findUnique({
+      where: { id: usuarioId },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        foto_url: true,
+        atualizado_em: true,
+        criado_em: true,
+      },
+    });
+
+    if (!usuario) {
+      res.status(401).json({ error: "Usuario não econtrado" });
+      return;
+    }
+
+    res.status(200).json(usuario);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Erro interno no servidor ao buscar usuario" });
+  }
+}
