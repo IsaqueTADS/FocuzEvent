@@ -119,3 +119,22 @@ export async function atualizarAvatar(req, res) {
       .json({ error: "Erro interno ao fazer upload avatar" });
   }
 }
+
+export async function buscarTodosPerfis(req, res) {
+  try {
+    const usuarios = await prisma.user.findMany({
+      select: {
+        nome: true,
+        foto_url: true,
+        criado_em: true,
+      },
+    });
+    if (!usuarios.length) {
+      res.status(401).json({ error: "Nenhum usuario cadastrado" });
+    }
+    console.log(usuarios);
+    res.status(200).json(usuarios);
+  } catch {
+    res.status(500).json({ error: "Erro interno ao buscar os usuarios" });
+  }
+}

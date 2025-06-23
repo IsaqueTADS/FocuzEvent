@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   atualizarAvatar,
+  buscarTodosPerfis,
   criarUsuario,
   logarUsuario,
 } from "../controllers/authController.js";
@@ -12,7 +13,7 @@ const authRouter = express.Router();
 
 authRouter.post("/cadastrar", criarUsuario);
 authRouter.post("/logar", logarUsuario);
-authRouter.use(autenticacao);
-authRouter.patch("/avatar", uploadAvatar.single("avatar"), atualizarAvatar);
+authRouter.get("/usuarios", buscarTodosPerfis);
+authRouter.patch("/avatar", autenticacao, uploadAvatar.single("avatar"), atualizarAvatar);
 
 export default authRouter;

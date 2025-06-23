@@ -7,6 +7,7 @@ FocuzEvent web app.
 - [ X ] Deve ser possível se cadastrar;
 - [ X ] Deve ser possível se autenticar (login);
 - [ ] Deve ser possível acessar o perfil de um usuário logado;
+- [ X ] Deve ser possível acessar todos perfis cadastrado;
 - [ ] Deve ser possível recuperar senha;
 - [ ] Deve ser possível criar eventos (apenas logado);
 - [ ] Deve ser possível filtrar eventos por cidade;
