@@ -32,8 +32,7 @@ export async function criarUsuario(req, res) {
       },
     });
     res.status(201).json({ message: "Usuario criado com sucesso" });
-  } catch (error) {
-    console.error(error);
+  } catch {
     res
       .status(500)
       .json({ error: "Erro interno no servidor ao cadastrar usuario" });
@@ -68,8 +67,7 @@ export async function logarUsuario(req, res) {
     });
 
     res.status(200).json({ token });
-  } catch (error) {
-    console.error(error);
+  } catch {
     res.status(500).json({ error: "Erro interno ao tentar logar usuarios" });
   }
 }
@@ -132,7 +130,6 @@ export async function buscarTodosPerfis(req, res) {
     if (!usuarios.length) {
       res.status(401).json({ error: "Nenhum usuario cadastrado" });
     }
-    console.log(usuarios);
     res.status(200).json(usuarios);
   } catch {
     res.status(500).json({ error: "Erro interno ao buscar os usuarios" });
@@ -161,9 +158,40 @@ export async function buscarPerfilUsuario(req, res) {
 
     res.status(200).json(usuario);
   } catch (err) {
-    console.error(err);
     res
       .status(500)
       .json({ error: "Erro interno no servidor ao buscar usuario" });
+  }
+}
+
+export async function atualizarNome(req, res) {
+  try {
+    const { usuarioId } = req;
+    const { nome } = req.body;
+    const usuario = await prisma.user.findUnique({
+      where: { id: usuarioId },
+      select: { id: true, nome: true },
+    });
+
+    if (!usuario) {
+      res.status(401).json({ error: "Usuario não econtrado" });
+      return;
+    }
+
+    if (!nome) {
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
+    }
+
+    await prisma.user.update({
+      where: { id: usuarioId },
+      data: {
+        nome,
+      },
+    });
+
+    res.status(200).json({ message: "Nome atualizado com sucesso" });
+  } catch {
+    res.status(500).json({ error: "Erro interno ao atualizar o nome" });
   }
 }
