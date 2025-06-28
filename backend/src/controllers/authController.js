@@ -12,13 +12,13 @@ export async function criarUsuario(req, res) {
       return;
     }
 
-    const usuarioExiste = await prisma.user.findUnique({
+    const usuario = await prisma.user.findUnique({
       where: {
         email,
       },
     });
 
-    if (usuarioExiste) {
+    if (usuario) {
       res.status(403).json({ error: "Email já cadastrado" });
     }
 
@@ -93,8 +93,6 @@ export async function atualizarAvatar(req, res) {
     }
 
     if (usuario.foto_url) {
-      // console.log(usuario.foto_url?.split("/")[4]);
-
       const url = new URL(usuario.foto_url);
       const partes = url.pathname.split("/");
       const nomeDoArquivo = partes[partes.length - 1];
@@ -190,8 +188,55 @@ export async function atualizarNome(req, res) {
       },
     });
 
-    res.status(200).json({ message: "Nome atualizado com sucesso" });
+    res.status(200).json({ messagem: "Nome atualizado com sucesso" });
   } catch {
     res.status(500).json({ error: "Erro interno ao atualizar o nome" });
+  }
+}
+
+export async function alterarSenha(req, res) {
+  try {
+    const { usuarioId } = req;
+    const { senhaAtual, novaSenha } = req.body;
+
+    if (!senhaAtual || !novaSenha) {
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
+    }
+
+    const usuario = await prisma.user.findUnique({
+      where: { id: usuarioId },
+    });
+    if (!usuario) {
+      res.status(404).json({ error: "Usuário não encontrado" });
+      return;
+    }
+
+    const senhaValida = await bcrypt.compare(senhaAtual, usuario.senha);
+
+    if (!senhaValida) {
+      res.status(403).json({ error: "Senha atual incorreta" });
+      return;
+    }
+
+    if (senhaAtual === novaSenha) {
+      res
+        .status(403)
+        .json({ error: "A nova senha deve ser diferente da senha atual" });
+      return;
+    }
+
+    const novaSenhahash = await bcrypt.hash(novaSenha, 10);
+
+    await prisma.user.update({
+      where: { id: usuarioId },
+      data: { senha: novaSenhahash },
+    });
+
+    res.status(200).json({ messagem: "Senha atualizada com sucesso" });
+  } catch {
+    res
+      .status(500)
+      .json({ error: "Erro interno no servidor ao tentar alterar senha" });
   }
 }

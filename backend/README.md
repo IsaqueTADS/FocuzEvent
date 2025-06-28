@@ -8,7 +8,7 @@ FocuzEvent web app.
 - [ X ] Deve ser possível se autenticar (login);
 - [ ] Deve ser possível acessar o perfil de um usuário logado;
 - [ X ] Deve ser possível acessar todos perfis cadastrado;
-- [ ] Deve ser possível recuperar senha;
+- [ ] Deve ser possível alterar senha;
 - [ ] Deve ser possível criar eventos (apenas logado);
 - [ ] Deve ser possível filtrar eventos por cidade;
 - [ ] Deve ser possível impulsionar eventos;
@@ -20,6 +20,7 @@ FocuzEvent web app.
 
 - [ X ] O usuário não pode se cadastrar com um e-mail já em uso;
 - [ X ] O usuário não pode postar masi de um avatar, ou seja o antigo deve ser apagado;
+- [  ] A senha alterada não pode ser a mesma da antiga;
 - [ ] Um evento só pode ser editado ou excluído por quem o criou;
 - [ ] Apenas usuários logados podem realizar postagens
 - [ ] Eventos devem ter endereço completo e cidade;
