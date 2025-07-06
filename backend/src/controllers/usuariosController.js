@@ -171,3 +171,29 @@ export async function alterarSenha(req, res) {
       .json({ error: "Erro interno no servidor ao tentar alterar senha" });
   }
 }
+
+export async function deletarUsuario(req, res) {
+  try {
+    const { usuarioId } = req;
+
+    const usuario = await prisma.user.findUnique({ where: { id: usuarioId } });
+
+    if (!usuario) {
+      res.status(401).json({ error: "Usuario não econtrado" });
+      return;
+    }
+
+    if (usuario.foto_url != null) {
+      const url = new URL(usuario.foto_url);
+      const partes = url.pathname.split("/");
+      const nomeDoArquivo = partes[partes.length - 1];
+      apagarArquivos(nomeDoArquivo, "perfis");
+    }
+
+    await prisma.user.delete({ where: { id: usuarioId } });
+
+    res.status(200).json({ messagem: "Usuario deletado com sucesso" });
+  } catch {
+    res.status(500).json({ error: "Erro interno ao tentar deletar usuarios" });
+  }
+}
