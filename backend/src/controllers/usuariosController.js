@@ -51,6 +51,7 @@ export async function buscarTodosPerfis(req, res) {
   try {
     const usuarios = await prisma.user.findMany({
       select: {
+        id: true,
         nome: true,
         foto_url: true,
         criado_em: true,

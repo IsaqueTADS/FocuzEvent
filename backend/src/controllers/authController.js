@@ -19,6 +19,7 @@ export async function criarUsuario(req, res) {
 
     if (usuario) {
       res.status(403).json({ error: "Email já cadastrado" });
+      return;
     }
 
     const senhaHash = await bcrypt.hash(senha, 10);
