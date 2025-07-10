@@ -11,7 +11,7 @@ export async function criarUsuario(req, res) {
       return;
     }
 
-    const usuario = await prisma.user.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: {
         email,
       },
@@ -24,7 +24,7 @@ export async function criarUsuario(req, res) {
 
     const senhaHash = await bcrypt.hash(senha, 10);
 
-    await prisma.user.create({
+    await prisma.usuario.create({
       data: {
         nome,
         email,
@@ -32,7 +32,8 @@ export async function criarUsuario(req, res) {
       },
     });
     res.status(201).json({ message: "Usuario criado com sucesso" });
-  } catch {
+  } catch (error) {
+    console.error(error);
     res
       .status(500)
       .json({ error: "Erro interno no servidor ao cadastrar usuario" });
@@ -46,7 +47,7 @@ export async function logarUsuario(req, res) {
       return;
     }
 
-    const usuario = await prisma.user.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { email },
     });
 
@@ -63,11 +64,15 @@ export async function logarUsuario(req, res) {
     }
 
     const token = jwt.sign({ usuarioId: usuario.id }, process.env.JWT_SECRET, {
-      expiresIn: "3h",
+      expiresIn: "1m",
     });
 
     res.status(200).json({ token });
   } catch {
     res.status(500).json({ error: "Erro interno ao tentar logar usuarios" });
   }
+}
+
+export async function verificarToken(req, res) {
+  res.status(200).json({ ok: true });
 }

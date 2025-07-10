@@ -11,7 +11,7 @@ export async function atualizarAvatar(req, res) {
       return res.status(400).json({ erro: "Nenhum arquivo foi enviado." });
     }
 
-    const usuario = await prisma.user.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
       select: {
         id: true,
@@ -32,7 +32,7 @@ export async function atualizarAvatar(req, res) {
 
     const urlAvatar = `http://localhost:3000/perfis/${avatar.filename}`;
 
-    await prisma.user.update({
+    await prisma.usuario.update({
       where: { id: usuarioId },
       data: { foto_url: urlAvatar },
     });
@@ -49,7 +49,7 @@ export async function atualizarAvatar(req, res) {
 
 export async function buscarTodosPerfis(req, res) {
   try {
-    const usuarios = await prisma.user.findMany({
+    const usuarios = await prisma.usuario.findMany({
       select: {
         id: true,
         nome: true,
@@ -61,7 +61,8 @@ export async function buscarTodosPerfis(req, res) {
       res.status(401).json({ error: "Nenhum usuario cadastrado" });
     }
     res.status(200).json(usuarios);
-  } catch {
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Erro interno ao buscar os usuarios" });
   }
 }
@@ -69,7 +70,7 @@ export async function buscarTodosPerfis(req, res) {
 export async function buscarPerfilUsuario(req, res) {
   try {
     const { usuarioId } = req;
-    const usuario = await prisma.user.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
       select: {
         id: true,
@@ -98,7 +99,7 @@ export async function atualizarNome(req, res) {
   try {
     const { usuarioId } = req;
     const { nome } = req.body;
-    const usuario = await prisma.user.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
       select: { id: true, nome: true },
     });
@@ -113,7 +114,7 @@ export async function atualizarNome(req, res) {
       return;
     }
 
-    await prisma.user.update({
+    await prisma.usuario.update({
       where: { id: usuarioId },
       data: {
         nome,
@@ -136,7 +137,7 @@ export async function alterarSenha(req, res) {
       return;
     }
 
-    const usuario = await prisma.user.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
     });
     if (!usuario) {
@@ -160,7 +161,7 @@ export async function alterarSenha(req, res) {
 
     const novaSenhahash = await bcrypt.hash(novaSenha, 10);
 
-    await prisma.user.update({
+    await prisma.usuario.update({
       where: { id: usuarioId },
       data: { senha: novaSenhahash },
     });
@@ -177,7 +178,7 @@ export async function deletarUsuario(req, res) {
   try {
     const { usuarioId } = req;
 
-    const usuario = await prisma.user.findUnique({ where: { id: usuarioId } });
+    const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
 
     if (!usuario) {
       res.status(401).json({ error: "Usuario não econtrado" });
@@ -191,7 +192,7 @@ export async function deletarUsuario(req, res) {
       apagarArquivos(nomeDoArquivo, "perfis");
     }
 
-    await prisma.user.delete({ where: { id: usuarioId } });
+    await prisma.usuario.delete({ where: { id: usuarioId } });
 
     res.status(200).json({ messagem: "Usuario deletado com sucesso" });
   } catch {
