@@ -22,6 +22,46 @@ model Usuario {
   atualizado_em DateTime @updatedAt
   criado_em     DateTime @default(now())
   role          String   @default("usuario")
+  Eventos       Evento[]
 
   @@map("usuarios")
+}
+
+model Evento {
+  id                String   @id @default(uuid())
+  titulo            String
+  banner_evento_url String
+  descricao         String?
+  is_evento_pago    Boolean  @default(false)
+  is_impulsonado    Boolean  @default(false)
+  latitude          Decimal
+  longitude         Decimal
+  data_hora_inicio  DateTime
+  data_hora_fim     DateTime
+  atualizado_em     DateTime @updatedAt
+  criado_em         DateTime @default(now())
+  usuario           Usuario  @relation(fields: [usuario_id], references: [id])
+  usuario_id        String
+  cidade            Cidade   @relation(fields: [cidade_id], references: [id])
+  cidade_id         String
+
+  @@map("eventos")
+}
+
+model Estado {
+  id        String   @id @default(uuid())
+  uf        String
+  nome      String
+  criado_em DateTime @default(now())
+
+  @@map("estados")
+}
+
+model Cidade {
+  id        String   @id @default(uuid())
+  nome      String
+  criado_em DateTime @default(now())
+  Eventos    Evento[]
+
+  @@map("cidades")
 }

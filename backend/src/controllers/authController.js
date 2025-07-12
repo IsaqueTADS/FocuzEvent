@@ -64,7 +64,7 @@ export async function logarUsuario(req, res) {
     }
 
     const token = jwt.sign({ usuarioId: usuario.id }, process.env.JWT_SECRET, {
-      expiresIn: "1m",
+      expiresIn: "3h",
     });
 
     res.status(200).json({ token });
