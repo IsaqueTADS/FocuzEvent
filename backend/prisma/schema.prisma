@@ -21,6 +21,7 @@ model Usuario {
   foto_url      String?
   atualizado_em DateTime @updatedAt
   criado_em     DateTime @default(now())
+  role          String   @default("usuario")
 
   @@map("usuarios")
 }
