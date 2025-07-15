@@ -5,13 +5,16 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default function apagarArquivos(nomeDoArquivo, subpasta) {
+export default function apagarArquivos(
+  nomeDoArquivo: string,
+  subpasta: string
+) {
   const caminho = path.join(
     __dirname,
     "..",
     "uploads",
     subpasta,
-    nomeDoArquivo,
+    nomeDoArquivo
   );
 
   console.log("caminho: ", caminho);

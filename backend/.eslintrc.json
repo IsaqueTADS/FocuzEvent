@@ -3,20 +3,29 @@
     "node": true,
     "es2021": true
   },
-  "extends": "airbnb-base",
-  "plugins": [
-    "simple-import-sort"
-  ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
+  "extends": [
+    "airbnb-base",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": [
+    "simple-import-sort",
+    "@typescript-eslint"
+  ],
   "rules": {
     "no-console": "off",
     "no-underscore-dangle": [
       "error",
       {
-        "allow": ["__filename", "__dirname"]
+        "allow": [
+          "__filename",
+          "__dirname"
+        ]
       }
     ],
     "semi": [
@@ -33,8 +42,8 @@
       "error",
       "ignorePackages",
       {
-        "js": "always",
-        "mjs": "always"
+        "ts": "never",
+        "tsx": "never"
       }
     ],
     "import/no-unresolved": [
@@ -49,7 +58,8 @@
       "node": {
         "extensions": [
           ".js",
-          ".mjs"
+          ".ts",
+          ".tsx"
         ],
         "moduleDirectory": [
           "node_modules",

@@ -2,8 +2,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import prisma from "../utils/prisma.js";
+import { Request, Response } from "express";
+import { env } from "src/env/index.js";
 
-export async function criarUsuario(req, res) {
+export async function criarUsuario(req: Request, res: Response) {
   try {
     const { nome, email, senha } = req.body;
     if (!nome || !email || !senha) {
@@ -39,7 +41,7 @@ export async function criarUsuario(req, res) {
       .json({ error: "Erro interno no servidor ao cadastrar usuario" });
   }
 }
-export async function logarUsuario(req, res) {
+export async function logarUsuario(req: Request, res: Response) {
   try {
     const { email, senha } = req.body;
     if (!email || !senha) {
@@ -63,7 +65,7 @@ export async function logarUsuario(req, res) {
       return;
     }
 
-    const token = jwt.sign({ usuarioId: usuario.id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ usuarioId: usuario.id }, env.JWT_SECRET, {
       expiresIn: "3h",
     });
 
@@ -73,6 +75,6 @@ export async function logarUsuario(req, res) {
   }
 }
 
-export async function verificarToken(req, res) {
+export async function verificarToken(req: Request, res: Response) {
   res.status(200).json({ ok: true });
 }

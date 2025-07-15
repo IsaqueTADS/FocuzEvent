@@ -4,9 +4,9 @@ import {
   alterarSenha, atualizarAvatar, atualizarNome, buscarPerfilUsuario,
   buscarTodosPerfis,
   deletarUsuario,
-} from "../controllers/usuariosController.js";
-import autenticacao from "../middlewares/authMiddleware.js";
-import uploadAvatar from "../middlewares/uploadAvatar.js";
+} from "../controllers/usuariosController";
+import autenticacao from "../middlewares/authMiddleware";
+import uploadAvatar from "../middlewares/uploadAvatar";
 
 const usuarioRouter = express.Router();
 

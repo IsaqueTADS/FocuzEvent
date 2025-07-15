@@ -3,8 +3,8 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import authRouter from "./routes/authRoutes.js";
-import usuarioRouter from "./routes/usuariosRoutes.js";
+import authRouter from "./routes/authRoutes";
+import usuarioRouter from "./routes/usuariosRoutes";
 
 const app = express();
 app.use(express.json());
@@ -15,7 +15,7 @@ app.use(
     origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-  }),
+  })
 );
 
 const __filename = fileURLToPath(import.meta.url);

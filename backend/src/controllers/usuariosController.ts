@@ -2,8 +2,10 @@ import bcrypt from "bcrypt";
 
 import apagarArquivos from "../utils/apagarArquivos.js";
 import prisma from "../utils/prisma.js";
+  import { Request, Response } from "express";
+import { AuthRequest } from "src/utils/type.js";
 
-export async function atualizarAvatar(req, res) {
+export async function atualizarAvatar(req : AuthRequest, res : Response) {
   try {
     const avatar = req.file;
     const { usuarioId } = req;
@@ -47,7 +49,7 @@ export async function atualizarAvatar(req, res) {
   }
 }
 
-export async function buscarTodosPerfis(req, res) {
+export async function buscarTodosPerfis(req: Request, res: Response) {
   try {
     const usuarios = await prisma.usuario.findMany({
       select: {
@@ -57,6 +59,7 @@ export async function buscarTodosPerfis(req, res) {
         criado_em: true,
       },
     });
+
     if (!usuarios.length) {
       res.status(401).json({ error: "Nenhum usuario cadastrado" });
     }
@@ -67,7 +70,7 @@ export async function buscarTodosPerfis(req, res) {
   }
 }
 
-export async function buscarPerfilUsuario(req, res) {
+export async function buscarPerfilUsuario(req: AuthRequest, res: Response) {
   try {
     const { usuarioId } = req;
     const usuario = await prisma.usuario.findUnique({
@@ -95,7 +98,7 @@ export async function buscarPerfilUsuario(req, res) {
   }
 }
 
-export async function atualizarNome(req, res) {
+export async function atualizarNome(req: AuthRequest, res: Response) {
   try {
     const { usuarioId } = req;
     const { nome } = req.body;
@@ -127,7 +130,7 @@ export async function atualizarNome(req, res) {
   }
 }
 
-export async function alterarSenha(req, res) {
+export async function alterarSenha(req: AuthRequest, res: Response) {
   try {
     const { usuarioId } = req;
     const { senhaAtual, novaSenha } = req.body;
@@ -174,11 +177,13 @@ export async function alterarSenha(req, res) {
   }
 }
 
-export async function deletarUsuario(req, res) {
+export async function deletarUsuario(req: AuthRequest, res: Response) {
   try {
     const { usuarioId } = req;
 
-    const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
 
     if (!usuario) {
       res.status(401).json({ error: "Usuario não econtrado" });
