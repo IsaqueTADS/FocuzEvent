@@ -81,6 +81,7 @@ export async function buscarPerfilUsuario(req: Request, res: Response) {
         email: true,
         foto_url: true,
         atualizado_em: true,
+        role: true,
         criado_em: true,
       },
     });

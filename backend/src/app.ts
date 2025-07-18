@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 
 import authRouter from "./routes/authRoutes";
 import usuarioRouter from "./routes/usuariosRoutes";
+import admRouter from "./routes/adminRoutes";
 
 const app = express();
 app.use(express.json());
@@ -13,7 +14,7 @@ app.use(express.static("uploads"));
 app.use(
   cors({
     origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
 );
@@ -23,6 +24,7 @@ const __dirname = path.dirname(__filename);
 
 app.use("/", express.static(path.join(__dirname, "uploads")));
 app.use("/auth", authRouter);
+app.use("/admin", admRouter);
 app.use("/usuarios", usuarioRouter);
 
 app.get("/", (req, res) => {
