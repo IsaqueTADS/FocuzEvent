@@ -1,14 +1,15 @@
 {
-  "name": "Focuz",
+  "name": "focuz",
   "version": "1.0.0",
   "main": "server.ts",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "start": "node build/server.cjs",
-    "build": "tsup src --out-dir build",
-    "seed": "ts-node src/prisma/seed.ts"
+    "start": "node build/server.js",
+    "build": "tsup src --format esm --out-dir build",
+    "seed": "tsx prisma/seed.ts"
   },
+  "prisma": {},
   "keywords": [],
   "author": "",
   "license": "ISC",

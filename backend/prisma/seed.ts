@@ -1,8 +1,10 @@
 import prisma from "src/utils/prisma";
 import seedEstados from "./seeds/Estado";
+import seedCidades from "./seeds/Cidade";
 
 async function main() {
-  await seedEstados();
+  // await seedEstados();
+  await seedCidades();
 }
 
 main()

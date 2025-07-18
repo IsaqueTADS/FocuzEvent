@@ -2,13 +2,13 @@ import bcrypt from "bcrypt";
 
 import apagarArquivos from "../utils/apagarArquivos.js";
 import prisma from "../utils/prisma.js";
-  import { Request, Response } from "express";
+import { Request, Response } from "express";
 import { AuthRequest } from "src/utils/type.js";
 
-export async function atualizarAvatar(req : AuthRequest, res : Response) {
+export async function atualizarAvatar(req: Request, res: Response) {
   try {
     const avatar = req.file;
-    const { usuarioId } = req;
+    const { usuarioId } = req as AuthRequest;
     if (!avatar) {
       return res.status(400).json({ erro: "Nenhum arquivo foi enviado." });
     }
@@ -70,9 +70,9 @@ export async function buscarTodosPerfis(req: Request, res: Response) {
   }
 }
 
-export async function buscarPerfilUsuario(req: AuthRequest, res: Response) {
+export async function buscarPerfilUsuario(req: Request, res: Response) {
   try {
-    const { usuarioId } = req;
+    const { usuarioId } = req as AuthRequest;
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
       select: {
@@ -98,9 +98,9 @@ export async function buscarPerfilUsuario(req: AuthRequest, res: Response) {
   }
 }
 
-export async function atualizarNome(req: AuthRequest, res: Response) {
+export async function atualizarNome(req: Request, res: Response) {
   try {
-    const { usuarioId } = req;
+    const { usuarioId } = req as AuthRequest;
     const { nome } = req.body;
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
@@ -130,9 +130,9 @@ export async function atualizarNome(req: AuthRequest, res: Response) {
   }
 }
 
-export async function alterarSenha(req: AuthRequest, res: Response) {
+export async function alterarSenha(req: Request, res: Response) {
   try {
-    const { usuarioId } = req;
+    const { usuarioId } = req as AuthRequest;
     const { senhaAtual, novaSenha } = req.body;
 
     if (!senhaAtual || !novaSenha) {
@@ -177,9 +177,9 @@ export async function alterarSenha(req: AuthRequest, res: Response) {
   }
 }
 
-export async function deletarUsuario(req: AuthRequest, res: Response) {
+export async function deletarUsuario(req: Request, res: Response) {
   try {
-    const { usuarioId } = req;
+    const { usuarioId } = req as AuthRequest;
 
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
