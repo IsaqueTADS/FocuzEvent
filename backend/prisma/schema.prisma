@@ -71,34 +71,41 @@ model Cidade {
 }
 
 model MetodoPagamento {
-  id        String    @id @default(uuid())
-  nome      String
-  criado_em DateTime  @default(now())
-  Impulsos  Impulso[]
+  id             String          @id @default(uuid())
+  nome           String
+  criado_em      DateTime        @default(now())
+  ImpulsoEventos ImpulsoEvento[]
 
   @@map("metodos_pagamento")
 }
 
 model Impulso {
-  id                  String          @id @default(uuid())
-  valor               Decimal
-  atualizado_em       DateTime        @updatedAt
-  criado_em           DateTime        @default(now())
-  metodoPagamento     MetodoPagamento @relation(fields: [metodo_pagamento_id], references: [id])
-  metodo_pagamento_id String
-  ImpulsoEvento       ImpulsoEvento[]
+  id            String          @id @default(uuid())
+  valor         Decimal
+  atualizado_em DateTime        @updatedAt
+  criado_em     DateTime        @default(now())
+  ImpulsoEvento ImpulsoEvento[]
 }
 
 model ImpulsoEvento {
-  id               String   @id @default(uuid())
-  valor            Decimal
-  data_hora_inicio DateTime
-  data_fim         DateTime
-  criado_em        DateTime @default(now())
-  evento           Evento   @relation(fields: [evento_id], references: [id])
-  evento_id        String
-  impulso          Impulso  @relation(fields: [impulso_id], references: [id])
-  impulso_id       String
+  id                  String          @id @default(uuid())
+  valor               Decimal
+  data_hora_inicio    DateTime
+  data_fim            DateTime
+  criado_em           DateTime        @default(now())
+  evento              Evento          @relation(fields: [evento_id], references: [id])
+  evento_id           String
+  impulso             Impulso         @relation(fields: [impulso_id], references: [id])
+  impulso_id          String
+  metodoPagamento     MetodoPagamento @relation(fields: [metodo_pagamento_id], references: [id])
+  metodo_pagamento_id String
+  status_pagamento    String          @default("AGUARDANDO")
 
   @@map("impulsos_eventos")
+}
+
+enum StatusPagamaneto {
+  AGUARDANDO
+  PAGO
+  RECUSADO
 }
