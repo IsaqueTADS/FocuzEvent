@@ -3,10 +3,11 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import authRouter from "./routes/authRoutes";
-import usuarioRouter from "./routes/usuariosRoutes";
 import admRouter from "./routes/adminRoutes";
+import authRouter from "./routes/authRoutes";
+import cidadesRouter from "./routes/cidadesRoutes";
 import eventosRouter from "./routes/eventosRoutes";
+import usuarioRouter from "./routes/usuariosRoutes";
 
 const app = express();
 app.use(express.json());
@@ -17,7 +18,7 @@ app.use(
     origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
-  })
+  }),
 );
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +29,7 @@ app.use("/auth", authRouter);
 app.use("/admin", admRouter);
 app.use("/usuarios", usuarioRouter);
 app.use("/eventos", eventosRouter);
+app.use("/cidades", cidadesRouter);
 
 app.get("/", (req, res) => {
   res.send("🚀 Hello World");

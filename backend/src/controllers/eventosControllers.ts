@@ -1,4 +1,4 @@
-import { Response, Request } from "express";
+import { Request, Response } from "express";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
 import { z } from "zod";
@@ -51,7 +51,9 @@ export async function criarEvento(req: Request, res: Response) {
     res.status(201).send();
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Dados inváldos" });
+      return res
+        .status(400)
+        .json({ error: "Dados inváldos", issues: z.treeifyError(error) });
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -59,6 +61,65 @@ export async function criarEvento(req: Request, res: Response) {
 }
 
 export async function buscarTodosEventos(req: Request, res: Response) {
-  const eventos = await prisma.evento.findMany();
+  const eventos = await prisma.evento.findMany({
+    include: {
+      cidade: {
+        select: { nome: true, estado: { select: { uf: true, nome: true } } },
+      },
+      usuario: { select: { id: true, nome: true } },
+    },
+  });
   res.status(200).json(eventos);
+}
+
+export async function buscarEventosUsuario(req: Request, res: Response) {
+  const { usuarioId } = req as AuthRequest;
+  const eventosUsuario = await prisma.evento.findMany({
+    where: { usuario_id: usuarioId },
+    include: {
+      cidade: {
+        select: { nome: true, estado: { select: { uf: true, nome: true } } },
+      },
+      usuario: { select: { id: true, nome: true } },
+    },
+  });
+
+  res.status(200).json(eventosUsuario);
+}
+
+export async function buscarEventosCidade(req: Request, res: Response) {
+  try {
+    const cidadeSchema = z.object({
+      cidade_id: z.string(),
+    });
+    const { cidade_id } = cidadeSchema.parse(req.query);
+
+    const cidade = await prisma.cidade.findUnique({
+      where: {
+        id: cidade_id,
+      },
+    });
+
+    if (!cidade) return res.status(404).json({ error: "Cidade não econtrada" });
+
+    const eventosCidade = await prisma.evento.findMany({
+      where: { cidade_id },
+      include: {
+        cidade: {
+          select: { nome: true, estado: { select: { uf: true, nome: true } } },
+        },
+        usuario: { select: { id: true, nome: true } },
+      },
+    });
+
+    res.status(200).json(eventosCidade);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res
+        .status(400)
+        .json({ error: "Dados inváldos", issues: z.treeifyError(error) });
+    }
+    console.error(error);
+    res.status(500).json({ error: "Erro interno no servidor." });
+  }
 }
