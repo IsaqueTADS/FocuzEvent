@@ -19,6 +19,7 @@
   ],
   "rules": {
     "no-console": "off",
+    "camelcase": "off",
     "no-underscore-dangle": [
       "error",
       {
@@ -55,6 +56,9 @@
   },
   "settings": {
     "import/resolver": {
+      "typescript": {
+        "project": "./tsconfig.json"
+      },
       "node": {
         "extensions": [
           ".js",
@@ -66,6 +70,6 @@
           "src/"
         ]
       }
-    }
+    },
   }
 }

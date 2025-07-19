@@ -7,7 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "start": "node build/server.js",
     "build": "tsup src --format esm --out-dir build",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "prisma": {},
   "keywords": [],
@@ -21,7 +22,7 @@
     "dotenv": "16.5.0",
     "express": "5.1.0",
     "jsonwebtoken": "9.0.2",
-    "multer": "2.0.1",
+    "multer": "2.0.2",
     "uuid": "11.1.0",
     "zod": "4.0.5"
   },
@@ -32,8 +33,11 @@
     "@types/jsonwebtoken": "9.0.10",
     "@types/multer": "2.0.0",
     "@types/node": "24.0.13",
+    "@typescript-eslint/eslint-plugin": "5.62.0",
+    "@typescript-eslint/parser": "5.62.0",
     "eslint": "8.39.0",
     "eslint-config-airbnb-base": "15.0.0",
+    "eslint-import-resolver-typescript": "2.5.0",
     "eslint-plugin-import": "2.25.2",
     "eslint-plugin-simple-import-sort": "12.1.1",
     "prisma": "6.8.2",
