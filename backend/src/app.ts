@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import authRouter from "./routes/authRoutes";
 import usuarioRouter from "./routes/usuariosRoutes";
 import admRouter from "./routes/adminRoutes";
+import eventosRouter from "./routes/eventosRoutes";
 
 const app = express();
 app.use(express.json());
@@ -26,6 +27,7 @@ app.use("/", express.static(path.join(__dirname, "uploads")));
 app.use("/auth", authRouter);
 app.use("/admin", admRouter);
 app.use("/usuarios", usuarioRouter);
+app.use("/eventos", eventosRouter);
 
 app.get("/", (req, res) => {
   res.send("🚀 Hello World");
