@@ -4,14 +4,23 @@ import jwt from "jsonwebtoken";
 import prisma from "../utils/prisma.js";
 import { Request, Response } from "express";
 import { env } from "src/env/index.js";
+import { z } from "zod";
 
 export async function criarUsuario(req: Request, res: Response) {
   try {
-    const { nome, email, senha } = req.body;
-    if (!nome || !email || !senha) {
-      res.status(400).json({ error: "dados inválidos" });
-      return;
+    const authSchema = z.object({
+      nome: z.string().min(1),
+      email: z.string().email(),
+      senha: z.string().min(8),
+    });
+
+    const validacao = authSchema.safeParse(req.body);
+
+    if (validacao.success === false) {
+      return res.status(400).json({ errors: "Dados inválidos" });
     }
+
+    const { nome, email, senha } = validacao.data;
 
     const usuario = await prisma.usuario.findUnique({
       where: {
@@ -43,11 +52,18 @@ export async function criarUsuario(req: Request, res: Response) {
 }
 export async function logarUsuario(req: Request, res: Response) {
   try {
-    const { email, senha } = req.body;
-    if (!email || !senha) {
-      res.status(400).json({ error: "dados inválidos" });
-      return;
+    const authSchema = z.object({
+      email: z.string().email(),
+      senha: z.string().min(8),
+    });
+
+    const validacao = authSchema.safeParse(req.body);
+
+    if (validacao.success === false) {
+      return res.status(400).json({ errors: "Dados inválidos" });
     }
+
+    const { email, senha } = validacao.data;
 
     const usuario = await prisma.usuario.findUnique({
       where: { email },
@@ -61,7 +77,7 @@ export async function logarUsuario(req: Request, res: Response) {
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
     if (!senhaValida) {
-      res.status(401).json({ error: "Senha incorreta" });
+      res.status(401).json({ error: "Senha ou email inválidos" });
       return;
     }
 
