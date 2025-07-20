@@ -26,10 +26,7 @@ export async function atualizarAvatar(req: Request, res: Response) {
     }
 
     if (usuario.foto_url) {
-      const url = new URL(usuario.foto_url);
-      const partes = url.pathname.split("/");
-      const nomeDoArquivo = partes[partes.length - 1];
-      apagarArquivos(nomeDoArquivo, "perfis");
+      apagarArquivos(usuario.foto_url, "perfis");
     }
 
     const urlAvatar = `http://localhost:3000/perfis/${avatar.filename}`;
@@ -184,6 +181,9 @@ export async function deletarUsuario(req: Request, res: Response) {
 
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
+      include: {
+        Eventos: true,
+      },
     });
 
     if (!usuario) {
@@ -191,12 +191,26 @@ export async function deletarUsuario(req: Request, res: Response) {
       return;
     }
 
+    const bannersLinks = usuario.Eventos.map(
+      (evento) => evento.banner_evento_url
+    );
+
     if (usuario.foto_url != null) {
-      const url = new URL(usuario.foto_url);
-      const partes = url.pathname.split("/");
-      const nomeDoArquivo = partes[partes.length - 1];
-      apagarArquivos(nomeDoArquivo, "perfis");
+      apagarArquivos(usuario.foto_url, "perfis");
     }
+
+    if (bannersLinks.length !== 0) {
+      bannersLinks.forEach((link) => {
+        apagarArquivos(link, "eventos");
+      });
+    }
+
+    // if (usuario.foto_url != null) {
+    //   const url = new URL(usuario.foto_url);
+    //   const partes = url.pathname.split("/");
+    //   const nomeDoArquivo = partes[partes.length - 1];
+    //   apagarArquivos(nomeDoArquivo, "perfis");
+    // }
 
     await prisma.usuario.delete({ where: { id: usuarioId } });
 

@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const armazenamneto = multer.diskStorage({
   destination: (req, file, cb) => {
-    const pastaDestino = path.join(__dirname, " ../uploads/eventos");
+    const pastaDestino = path.join(__dirname, "../uploads/eventos");
 
     fs.mkdirSync(pastaDestino, { recursive: true });
 

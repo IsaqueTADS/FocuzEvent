@@ -18,8 +18,6 @@ export async function criarEvento(req: Request, res: Response) {
       cidade_id: z.string(),
     });
 
-    console.log(req.body);
-
     const {
       titulo,
       descricao,
@@ -45,8 +43,6 @@ export async function criarEvento(req: Request, res: Response) {
         usuario_id: usuarioId,
       },
     });
-
-    console.log(usuarioId);
 
     res.status(201).send();
   } catch (error) {
