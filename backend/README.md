@@ -4,11 +4,11 @@ FocuzEvent web app.
 
 ## Rfs (Requisitos funcionais)
 
-- [ X ] Deve ser possível se cadastrar;
-- [ X ] Deve ser possível se autenticar (login);
-- [ X ] Deve ser possível acessar o perfil de um usuário logado;
-- [ X ] Deve ser possível acessar todos perfis cadastrado;
-- [ X ] Deve ser possível alterar senha;
+- [x] Deve ser possível se cadastrar;
+- [x] Deve ser possível se autenticar (login);
+- [x] Deve ser possível acessar o perfil de um usuário logado;
+- [x] Deve ser possível acessar todos perfis cadastrado;
+- [x] Deve ser possível alterar senha;
 - [ ] Deve ser possível criar eventos (apenas logado);
 - [ ] Deve ser possível filtrar eventos por cidade;
 - [ ] Deve ser possível impulsionar eventos;
@@ -18,9 +18,10 @@ FocuzEvent web app.
 
 ## RNs (Regras de negócio)
 
-- [ X ] O usuário não pode se cadastrar com um e-mail já em uso;
-- [ X ] O usuário não pode postar masi de um avatar, ou seja o antigo deve ser apagado;
-- [ X ] A senha alterada não pode ser a mesma da antiga;
+- [x] O usuário não pode se cadastrar com um e-mail já em uso;
+- [x] O usuário não pode postar masi de um avatar, ou seja o antigo deve ser apagado;
+- [x] A senha alterada não pode ser a mesma da antiga;
+- [ ] Se o usuario for deletado seus eventos, foto perfil, e fotos dos evento devem ser apagadas;
 - [ ] Um evento só pode ser editado ou excluído por quem o criou;
 - [ ] Apenas usuários logados podem realizar postagens
 - [ ] Eventos devem ter endereço completo e cidade;
@@ -29,9 +30,9 @@ FocuzEvent web app.
 
 ## RNFs (Requisitos não-funcionais)
 
-- [ X ] A senha do usuário deve estar criptografada (bcrypt);
-- [ X ] O sistema deve utilizar banco de dados PostgreSQL;
-- [ X ] O sistema deve utilizar JWT (JSON Web Token) para autenticação e autorização;
+- [x] A senha do usuário deve estar criptografada (bcrypt);
+- [x] O sistema deve utilizar banco de dados PostgreSQL;
+- [x] O sistema deve utilizar JWT (JSON Web Token) para autenticação e autorização;
 - [ ] O sistema deve ter responsividade para dispositivos móveis;
 - [ ] Criador pode escolher quantidade de dias de impulsionamento;
 - [ ]

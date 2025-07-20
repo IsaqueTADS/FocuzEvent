@@ -2,13 +2,18 @@ import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const armazenamneto = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../uploads/perfis"));
+    const pastaDestino = path.join(__dirname, "../uploads/perfis");
+
+    fs.mkdirSync(pastaDestino, { recursive: true });
+
+    cb(null, pastaDestino);
   },
   filename: (req, file, cb) => {
     const extensao = path.extname(file.originalname);
