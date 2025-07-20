@@ -26,3 +26,4 @@ coverage/
 /src/generated/prisma
 
 jsonExterno/
+uploads/

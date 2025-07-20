@@ -40,7 +40,7 @@ model Evento {
   data_hora_fim     DateTime
   atualizado_em     DateTime        @updatedAt
   criado_em         DateTime        @default(now())
-  usuario           Usuario         @relation(fields: [usuario_id], references: [id])
+  usuario           Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   usuario_id        String
   cidade            Cidade          @relation(fields: [cidade_id], references: [id])
   cidade_id         String
