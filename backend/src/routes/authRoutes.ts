@@ -4,7 +4,7 @@ import {
   criarUsuario,
   logarUsuario,
   verificarToken,
-} from "../controllers/authController";
+} from "../controllers/authControllers";
 import autenticacao from "../middlewares/authMiddleware";
 
 const authRouter = express.Router();

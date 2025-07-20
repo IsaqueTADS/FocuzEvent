@@ -1,5 +1,5 @@
 import express from "express";
-import { buscarAdmin } from "src/controllers/adminController";
+import { buscarAdmin } from "src/controllers/adminControllers";
 import verificarAdmin from "src/middlewares/adminMiddleware";
 import autenticacao from "src/middlewares/authMiddleware";
 
