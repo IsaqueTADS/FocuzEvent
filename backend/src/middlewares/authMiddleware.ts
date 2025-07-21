@@ -4,8 +4,13 @@ import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { AuthRequest } from "src/utils/type";
 import { env } from "src/env/index";
+import prisma from "src/utils/prisma";
 
-const autenticacao = (req: Request, res: Response, next: NextFunction) => {
+const autenticacao = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
     res.status(401).json({ error: "Token não fornecido" });
@@ -15,10 +20,19 @@ const autenticacao = (req: Request, res: Response, next: NextFunction) => {
   try {
     const decodificado = jwt.verify(token, env.JWT_SECRET);
     if (typeof decodificado === "object" && "usuarioId" in decodificado) {
-      
-      (req as AuthRequest).usuarioId = decodificado.usuarioId;
+      const usuarioId = decodificado.usuarioId;
+
+      (req as AuthRequest).usuarioId = usuarioId;
+
+      const usuario = await prisma.usuario.findUnique({
+        where: { id: usuarioId },
+      });
+
+      if (!usuario) {
+        return res.status(404).json({ error: "Usuario não encontrado" });
+      }
       next();
-    } else {
+    } else {  
       return res.status(401).json({ error: "Token inválido" });
     }
   } catch {

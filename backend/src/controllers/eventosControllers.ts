@@ -11,35 +11,35 @@ export async function criarEvento(req: Request, res: Response) {
     const eventoSchema = z.object({
       titulo: z.string().min(1),
       descricao: z.string().min(1),
-      data_hora_inicio: z.iso.datetime(),
-      data_hora_fim: z.iso.datetime(),
+      dataHoraInicio: z.iso.datetime(),
+      dataHoraFim: z.iso.datetime(),
       latitude: z.string(),
       longitude: z.string(),
-      cidade_id: z.string(),
+      cidadeId: z.string(),
     });
 
     const {
       titulo,
       descricao,
-      data_hora_fim,
-      data_hora_inicio,
+      dataHoraInicio,
+      dataHoraFim,
       latitude,
       longitude,
-      cidade_id,
+      cidadeId,
     } = eventoSchema.parse(req.body);
 
-    const urlBannerEvento = `http://localhost:3000/eventos/${bannerEvento?.filename}`;
+    const urlBannerEvento = `http://localhost:3000/uploads/eventos/${bannerEvento?.filename}`;
 
     await prisma.evento.create({
       data: {
         titulo,
         descricao,
         banner_evento_url: urlBannerEvento,
-        data_hora_inicio,
-        data_hora_fim,
+        data_hora_inicio: dataHoraInicio,
+        data_hora_fim: dataHoraFim,
         latitude: parseFloat(latitude),
         longitude: parseFloat(longitude),
-        cidade_id,
+        cidade_id: cidadeId,
         usuario_id: usuarioId,
       },
     });
@@ -57,30 +57,38 @@ export async function criarEvento(req: Request, res: Response) {
 }
 
 export async function buscarTodosEventos(req: Request, res: Response) {
-  const eventos = await prisma.evento.findMany({
-    include: {
-      cidade: {
-        select: { nome: true, estado: { select: { uf: true, nome: true } } },
+  try {
+    const eventos = await prisma.evento.findMany({
+      include: {
+        cidade: {
+          select: { nome: true, estado: { select: { uf: true, nome: true } } },
+        },
+        usuario: { select: { id: true, nome: true } },
       },
-      usuario: { select: { id: true, nome: true } },
-    },
-  });
-  res.status(200).json(eventos);
+    });
+    res.status(200).json(eventos);
+  } catch {
+    res.status(500).json({ error: "Erro interno no servidor" });
+  }
 }
 
 export async function buscarEventosUsuario(req: Request, res: Response) {
-  const { usuarioId } = req as AuthRequest;
-  const eventosUsuario = await prisma.evento.findMany({
-    where: { usuario_id: usuarioId },
-    include: {
-      cidade: {
-        select: { nome: true, estado: { select: { uf: true, nome: true } } },
+  try {
+    const { usuarioId } = req as AuthRequest;
+    const eventosUsuario = await prisma.evento.findMany({
+      where: { usuario_id: usuarioId },
+      include: {
+        cidade: {
+          select: { nome: true, estado: { select: { uf: true, nome: true } } },
+        },
+        usuario: { select: { id: true, nome: true } },
       },
-      usuario: { select: { id: true, nome: true } },
-    },
-  });
+    });
 
-  res.status(200).json(eventosUsuario);
+    res.status(200).json(eventosUsuario);
+  } catch {
+    res.status(500).json({ error: "Erro interno no servidor" });
+  }
 }
 
 export async function buscarEventosCidade(req: Request, res: Response) {

@@ -29,7 +29,7 @@ export async function atualizarAvatar(req: Request, res: Response) {
       apagarArquivos(usuario.foto_url, "perfis");
     }
 
-    const urlAvatar = `http://localhost:3000/perfis/${avatar.filename}`;
+    const urlAvatar = `http://localhost:3000/uploads/perfis/${avatar.filename}`;
 
     await prisma.usuario.update({
       where: { id: usuarioId },
@@ -204,13 +204,6 @@ export async function deletarUsuario(req: Request, res: Response) {
         apagarArquivos(link, "eventos");
       });
     }
-
-    // if (usuario.foto_url != null) {
-    //   const url = new URL(usuario.foto_url);
-    //   const partes = url.pathname.split("/");
-    //   const nomeDoArquivo = partes[partes.length - 1];
-    //   apagarArquivos(nomeDoArquivo, "perfis");
-    // }
 
     await prisma.usuario.delete({ where: { id: usuarioId } });
 

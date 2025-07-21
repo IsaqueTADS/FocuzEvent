@@ -12,7 +12,6 @@ const eventosRouter = express.Router();
 eventosRouter.get("/todos", buscarTodosEventos);
 eventosRouter.get("/cidade", buscarEventosCidade);
 eventosRouter.get("/me", autenticacao, buscarEventosUsuario);
-eventosRouter.use(autenticacao);
 eventosRouter.post(
   "/criar",
   autenticacao,

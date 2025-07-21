@@ -4,14 +4,17 @@ import z from "zod";
 import { Request, Response } from "express";
 
 export async function buscarTodasCidades(req: Request, res: Response) {
-  const cidades = await prisma.cidade.findMany({
-    select: {
-      id: true,
-      nome: true,
-    },
-  });
-
-  res.status(200).json(cidades);
+  try {
+    const cidades = await prisma.cidade.findMany({
+      select: {
+        id: true,
+        nome: true,
+      },
+    });
+    res.status(200).json(cidades);
+  } catch {
+    res.status(500).json({ error: "Erro interno no servidor." });
+  }
 }
 export async function buscarCidadesPorEstados(req: Request, res: Response) {
   try {
@@ -31,7 +34,7 @@ export async function buscarCidadesPorEstados(req: Request, res: Response) {
     const cidades = await prisma.cidade.findMany({
       where: {
         estado_id: estadoId,
-      }
+      },
     });
 
     res.status(200).json(cidades);
