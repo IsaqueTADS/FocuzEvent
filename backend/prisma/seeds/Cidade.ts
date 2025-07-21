@@ -58,5 +58,5 @@ export default async function seedCidades() {
     };
   });
 
-  await prisma.cidade.createMany({ data: cidadesFinal });
+  await prisma.cidade.createMany({ data: cidadesFinal, skipDuplicates: true });
 }
