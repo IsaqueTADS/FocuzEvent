@@ -1,5 +1,7 @@
 import express from "express";
 import {
+  atualiarEvento,
+  buscarEvento,
   buscarEventosCidade,
   buscarEventosUsuario,
   buscarTodosEventos,
@@ -17,6 +19,13 @@ eventosRouter.post(
   autenticacao,
   uploadBannerEventos.single("banner_evento"),
   criarEvento
+);
+eventosRouter.get("/:eventoId", buscarEvento);
+eventosRouter.put(
+  "/atualizar/:eventoId",
+  autenticacao,
+  uploadBannerEventos.single("atualizar_banner_evento"),
+  atualiarEvento
 );
 
 export default eventosRouter;
