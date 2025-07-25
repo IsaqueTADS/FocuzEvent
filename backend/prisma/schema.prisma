@@ -32,6 +32,7 @@ model Evento {
   titulo            String
   banner_evento_url String
   descricao         String?
+  acessos           Int             @default(0)
   is_evento_pago    Boolean         @default(false)
   is_impulsonado    Boolean         @default(false)
   latitude          Decimal
@@ -89,7 +90,7 @@ model Impulso {
 
 model ImpulsoEvento {
   id                  String          @id @default(uuid())
-  valor               Decimal
+  valor_total         Decimal
   data_hora_inicio    DateTime
   data_fim            DateTime
   criado_em           DateTime        @default(now())
