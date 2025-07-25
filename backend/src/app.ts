@@ -9,6 +9,7 @@ import cidadesRouter from "./routes/cidadesRoutes";
 import eventosRouter from "./routes/eventosRoutes";
 import usuarioRouter from "./routes/usuariosRoutes";
 import { buscarTodosEstados } from "./controllers/estadosControllers";
+import categoriaRouter from "./routes/categoriasRoutes";
 
 const app = express();
 app.use(express.json());
@@ -31,6 +32,7 @@ app.use("/usuarios", usuarioRouter);
 app.use("/eventos", eventosRouter);
 app.use("/estados", buscarTodosEstados);
 app.use("/cidades", cidadesRouter);
+app.use("/categorias", categoriaRouter);
 
 app.get("/", (req, res) => {
   res.send("🚀 Hello World");

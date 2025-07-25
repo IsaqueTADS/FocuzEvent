@@ -28,24 +28,26 @@ model Usuario {
 }
 
 model Evento {
-  id                String          @id @default(uuid())
-  titulo            String
-  banner_evento_url String
-  descricao         String?
-  acessos           Int             @default(0)
-  is_evento_pago    Boolean         @default(false)
-  is_impulsonado    Boolean         @default(false)
-  latitude          Decimal
-  longitude         Decimal
-  data_hora_inicio  DateTime
-  data_hora_fim     DateTime
-  atualizado_em     DateTime        @updatedAt
-  criado_em         DateTime        @default(now())
-  usuario           Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  usuario_id        String
-  cidade            Cidade          @relation(fields: [cidade_id], references: [id])
-  cidade_id         String
-  ImpulsosEventos   ImpulsoEvento[]
+  id                  String          @id @default(uuid())
+  titulo              String
+  banner_evento_url   String
+  descricao           String?
+  acessos             Int             @default(0)
+  is_evento_pago      Boolean         @default(false)
+  is_impulsonado      Boolean         @default(false)
+  latitude            Decimal
+  longitude           Decimal
+  data_hora_inicio    DateTime
+  data_hora_fim       DateTime
+  atualizado_em       DateTime        @updatedAt
+  criado_em           DateTime        @default(now())
+  usuario             Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  usuario_id          String
+  cidade              Cidade          @relation(fields: [cidade_id], references: [id])
+  cidade_id           String
+  ImpulsoEventos     ImpulsoEvento[]
+  categoriaEvento     CategoriaEvento @relation(fields: [categoria_evento_id], references: [id])
+  categoria_evento_id String
 
   @@map("eventos")
 }
@@ -93,7 +95,6 @@ model ImpulsoEvento {
   valor_total         Decimal
   data_hora_inicio    DateTime
   data_fim            DateTime
-  criado_em           DateTime        @default(now())
   evento              Evento          @relation(fields: [evento_id], references: [id])
   evento_id           String
   impulso             Impulso         @relation(fields: [impulso_id], references: [id])
@@ -101,8 +102,20 @@ model ImpulsoEvento {
   metodoPagamento     MetodoPagamento @relation(fields: [metodo_pagamento_id], references: [id])
   metodo_pagamento_id String
   status_pagamento    String          @default("AGUARDANDO")
+  atualizado_em       DateTime        @updatedAt
+  criado_em           DateTime        @default(now())
 
   @@map("impulsos_eventos")
+}
+
+model CategoriaEvento {
+  id            String   @id @default(uuid())
+  titulo        String
+  atualizado_em DateTime @updatedAt
+  criado_em     DateTime @default(now())
+  Eventos        Evento[]
+
+  @@map("categoria_eventos")
 }
 
 enum StatusPagamaneto {

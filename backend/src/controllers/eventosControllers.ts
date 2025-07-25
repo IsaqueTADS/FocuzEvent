@@ -17,6 +17,7 @@ export async function criarEvento(req: Request, res: Response) {
       latitude: z.string(),
       longitude: z.string(),
       cidadeId: z.string(),
+      catagoriaEventoId : z.string()
     });
 
     const {
@@ -27,6 +28,7 @@ export async function criarEvento(req: Request, res: Response) {
       latitude,
       longitude,
       cidadeId,
+      catagoriaEventoId,
     } = eventoSchema.parse(req.body);
 
     const urlBannerEvento = `http://localhost:3000/uploads/eventos/${bannerEvento?.filename}`;
@@ -51,6 +53,7 @@ export async function criarEvento(req: Request, res: Response) {
         longitude: parseFloat(longitude),
         cidade_id: cidadeId,
         usuario_id: usuarioId,
+        categoria_evento_id:  catagoriaEventoId
       },
     });
 
@@ -78,6 +81,8 @@ export async function buscarTodosEventos(req: Request, res: Response) {
     });
     if (eventos.length === 0)
       return res.status(404).json({ error: "Nenhum evento econtrado" });
+
+    // await prisma.evento.deleteMany();
     res.status(200).json(eventos);
   } catch {
     res.status(500).json({ error: "Erro interno no servidor" });
@@ -185,6 +190,7 @@ export async function atualiarEvento(req: Request, res: Response) {
       latitude: z.string(),
       longitude: z.string(),
       cidadeId: z.string(),
+      catagoriaEventoId: z.string(),
     })
     .partial();
 
@@ -196,6 +202,7 @@ export async function atualiarEvento(req: Request, res: Response) {
     latitude,
     longitude,
     cidadeId,
+    catagoriaEventoId,
   } = eventoSchema.parse(req.body);
 
   const { eventoId } = req.params;
@@ -242,6 +249,7 @@ export async function atualiarEvento(req: Request, res: Response) {
       latitude,
       longitude,
       cidade_id: cidadeId,
+      categoria_evento_id: catagoriaEventoId,
     },
   });
 
