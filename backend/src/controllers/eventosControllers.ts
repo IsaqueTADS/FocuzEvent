@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
 import { z } from "zod";
@@ -17,7 +17,12 @@ export async function criarEvento(req: Request, res: Response) {
       latitude: z.string(),
       longitude: z.string(),
       cidadeId: z.string(),
-      catagoriaEventoId : z.string()
+      categoriaEventoId: z.string(),
+      isEventoPago: z.preprocess((val) => {
+        if (val === "true") return true;
+        if (val === "false") return false;
+        return val;
+      }, z.boolean()),
     });
 
     const {
@@ -28,7 +33,8 @@ export async function criarEvento(req: Request, res: Response) {
       latitude,
       longitude,
       cidadeId,
-      catagoriaEventoId,
+      categoriaEventoId,
+      isEventoPago,
     } = eventoSchema.parse(req.body);
 
     const urlBannerEvento = `http://localhost:3000/uploads/eventos/${bannerEvento?.filename}`;
@@ -53,7 +59,8 @@ export async function criarEvento(req: Request, res: Response) {
         longitude: parseFloat(longitude),
         cidade_id: cidadeId,
         usuario_id: usuarioId,
-        categoria_evento_id:  catagoriaEventoId
+        categoria_evento_id: categoriaEventoId,
+        is_evento_pago: isEventoPago,
       },
     });
 
@@ -74,9 +81,19 @@ export async function buscarTodosEventos(req: Request, res: Response) {
     const eventos = await prisma.evento.findMany({
       include: {
         cidade: {
-          select: { nome: true, estado: { select: { uf: true, nome: true } } },
+          select: {
+            id: true,
+            nome: true,
+            estado: { select: { id: true, uf: true, nome: true } },
+          },
         },
         usuario: { select: { id: true, nome: true } },
+        categoriaEvento: {
+          select: {
+            id: true,
+            titulo: true,
+          },
+        },
       },
     });
     if (eventos.length === 0)
@@ -96,9 +113,18 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
       where: { usuario_id: usuarioId },
       include: {
         cidade: {
-          select: { nome: true, estado: { select: { uf: true, nome: true } } },
+          select: {
+            nome: true,
+            estado: { select: { id: true, uf: true, nome: true } },
+          },
         },
-        usuario: { select: { nome: true } },
+        usuario: { select: { id: true, nome: true } },
+        categoriaEvento: {
+          select: {
+            id: true,
+            titulo: true,
+          },
+        },
       },
     });
 
@@ -127,11 +153,23 @@ export async function buscarEventosCidade(req: Request, res: Response) {
       where: { cidade_id },
       include: {
         cidade: {
-          select: { nome: true, estado: { select: { uf: true, nome: true } } },
+          select: {
+            nome: true,
+            estado: { select: { id: true, uf: true, nome: true } },
+          },
         },
         usuario: { select: { nome: true } },
+        categoriaEvento: {
+          select: {
+            id: true,
+            titulo: true,
+          },
+        },
       },
     });
+
+    if (eventosCidade.length === 0)
+      return res.status(404).json({ error: "Nenhum evento econtrado" });
 
     res.status(200).json(eventosCidade);
   } catch (error) {
@@ -168,6 +206,12 @@ export async function buscarEvento(req: Request, res: Response) {
             nome: true,
           },
         },
+        categoriaEvento: {
+          select: {
+            id: true,
+            titulo: true,
+          },
+        },
       },
     });
 
@@ -191,6 +235,11 @@ export async function atualiarEvento(req: Request, res: Response) {
       longitude: z.string(),
       cidadeId: z.string(),
       catagoriaEventoId: z.string(),
+      isEventoPago: z.preprocess((val) => {
+        if (val === "true") return true;
+        if (val === "false") return false;
+        return val;
+      }, z.boolean()),
     })
     .partial();
 
@@ -203,6 +252,7 @@ export async function atualiarEvento(req: Request, res: Response) {
     longitude,
     cidadeId,
     catagoriaEventoId,
+    isEventoPago,
   } = eventoSchema.parse(req.body);
 
   const { eventoId } = req.params;
@@ -250,6 +300,7 @@ export async function atualiarEvento(req: Request, res: Response) {
       longitude,
       cidade_id: cidadeId,
       categoria_evento_id: catagoriaEventoId,
+      is_evento_pago: isEventoPago,
     },
   });
 
