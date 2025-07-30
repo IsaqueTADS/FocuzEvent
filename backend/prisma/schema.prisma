@@ -101,7 +101,7 @@ model ImpulsoEvento {
   impulso_id          String
   metodoPagamento     MetodoPagamento @relation(fields: [metodo_pagamento_id], references: [id])
   metodo_pagamento_id String
-  status_pagamento    String          @default("AGUARDANDO")
+  status_pagamento    StatusPagamaneto      @default(AGUARDANDO)
   atualizado_em       DateTime        @updatedAt
   criado_em           DateTime        @default(now())
 
