@@ -31,6 +31,10 @@ const autenticacao = async (
       if (!usuario) {
         return res.status(404).json({ error: "Usuario não encontrado" });
       }
+
+      if(usuario.ativo === false) {
+        return res.status(404).json({ error: "Usuario não encontrado" });
+      }
       next();
     } else {  
       return res.status(401).json({ error: "Token inválido" });

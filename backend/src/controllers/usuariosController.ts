@@ -181,9 +181,6 @@ export async function deletarUsuario(req: Request, res: Response) {
 
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
-      include: {
-        Eventos: true,
-      },
     });
 
     if (!usuario) {
@@ -191,21 +188,29 @@ export async function deletarUsuario(req: Request, res: Response) {
       return;
     }
 
-    const bannersLinks = usuario.Eventos.map(
-      (evento) => evento.banner_evento_url
-    );
+    const eventos = await prisma.evento.updateMany({
+      where: {
+        usuario_id: usuarioId,
+      },
+      data: {
+        ativo: false,
+      },
+    });
 
-    if (usuario.foto_url != null) {
-      apagarArquivos(usuario.foto_url, "perfis");
-    }
+    const eventos3 = await prisma.evento.findMany({
+      where: {
+        usuario_id: usuarioId,
+      },
+    });
 
-    if (bannersLinks.length !== 0) {
-      bannersLinks.forEach((link) => {
-        apagarArquivos(link, "eventos");
-      });
-    }
+    console.log(eventos3);
 
-    await prisma.usuario.delete({ where: { id: usuarioId } });
+    await prisma.usuario.update({
+      where: { id: usuarioId },
+      data: {
+        ativo: false,
+      },
+    });
 
     res.status(200).json({ messagem: "Usuario deletado com sucesso" });
   } catch {

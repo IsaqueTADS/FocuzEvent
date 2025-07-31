@@ -3,6 +3,7 @@ import {
   atualiarEvento,
   buscarEvento,
   buscarEventosCidade,
+  buscarEventosFiltrados,
   buscarEventosUsuario,
   buscarTodosEventos,
   criarEvento,
@@ -14,6 +15,7 @@ const eventosRouter = express.Router();
 eventosRouter.get("/todos", buscarTodosEventos);
 eventosRouter.get("/cidade", buscarEventosCidade);
 eventosRouter.get("/me", autenticacao, buscarEventosUsuario);
+eventosRouter.get("/", buscarEventosFiltrados);
 eventosRouter.post(
   "/criar",
   autenticacao,
