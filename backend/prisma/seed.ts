@@ -3,12 +3,15 @@ import seedEstados from "./seeds/Estado";
 import seedCidades from "./seeds/Cidade";
 import { metodoPagamento } from "./seeds/MetodoDePagamento";
 import Categoria from "./seeds/Categoria";
+import Impulso from "./seeds/Impulso";
 
 async function main() {
   // await seedEstados();
   // await seedCidades();
   // await metodoPagamento();
-  await Categoria();
+  // await Categoria();
+
+  await Impulso();
 }
 
 main()

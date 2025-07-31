@@ -67,7 +67,7 @@ export async function criarEvento(req: Request, res: Response) {
     res.status(201).send();
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Dados inváldos" });
+      return res.status(400).json({ error: "Dados inválidos" });
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -177,7 +177,7 @@ export async function buscarEventosCidade(req: Request, res: Response) {
     if (error instanceof z.ZodError) {
       return res
         .status(400)
-        .json({ error: "Dados inváldos", messagem: z.treeifyError(error) });
+        .json({ error: "Dados inválidos" });
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -284,12 +284,12 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       },
     });
 
-    if(eventos.length === 0) return res.status(404).json({error: "Nenhuma evento econtrado"})
+    if(eventos.length === 0) return res.status(404).json({ error: "Nenhum evento encontrado." });
 
     res.status(200).json(eventos);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Dados inváldos" });
+      return res.status(400).json({ error: "Dados inválidos" });
     }
     res.status(500).json({ error: "Erro interno no servidor." });
   }
@@ -386,7 +386,7 @@ export async function atualiarEvento(req: Request, res: Response) {
     if (error instanceof z.ZodError) {
       return res
         .status(400)
-        .json({ error: "Dados inváldos", messagem: z.treeifyError(error) });
+        .json({ error: "Dados inválidos", messagem: z.treeifyError(error) });
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });

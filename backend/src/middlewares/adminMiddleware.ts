@@ -20,7 +20,7 @@ const verificarAdmin = async (
       },
     });
 
-    if (!usuario || usuario.role !== "admin") {
+    if (!usuario || usuario.role !== "ADMIN") {
       return res.status(403).json({
         error: "Acesso negado: usuário não tem papel de administrador",
       });
