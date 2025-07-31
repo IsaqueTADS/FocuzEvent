@@ -23,6 +23,8 @@ model Usuario {
   criado_em     DateTime @default(now())
   role          String   @default("usuario")
   Eventos       Evento[]
+  ativo               Boolean         @default(true)
+
 
   @@map("usuarios")
 }
@@ -41,13 +43,14 @@ model Evento {
   data_hora_fim       DateTime
   atualizado_em       DateTime        @updatedAt
   criado_em           DateTime        @default(now())
-  usuario             Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  usuario             Usuario         @relation(fields: [usuario_id], references: [id])
   usuario_id          String
   cidade              Cidade          @relation(fields: [cidade_id], references: [id])
   cidade_id           String
-  ImpulsoEventos     ImpulsoEvento[]
+  ImpulsoEventos      ImpulsoEvento[]
   categoriaEvento     CategoriaEvento @relation(fields: [categoria_evento_id], references: [id])
   categoria_evento_id String
+  ativo               Boolean         @default(true)
 
   @@map("eventos")
 }
@@ -91,19 +94,19 @@ model Impulso {
 }
 
 model ImpulsoEvento {
-  id                  String          @id @default(uuid())
+  id                  String           @id @default(uuid())
   valor_total         Decimal
   data_hora_inicio    DateTime
   data_fim            DateTime
-  evento              Evento          @relation(fields: [evento_id], references: [id])
+  evento              Evento           @relation(fields: [evento_id], references: [id])
   evento_id           String
-  impulso             Impulso         @relation(fields: [impulso_id], references: [id])
+  impulso             Impulso          @relation(fields: [impulso_id], references: [id])
   impulso_id          String
-  metodoPagamento     MetodoPagamento @relation(fields: [metodo_pagamento_id], references: [id])
+  metodoPagamento     MetodoPagamento  @relation(fields: [metodo_pagamento_id], references: [id])
   metodo_pagamento_id String
-  status_pagamento    StatusPagamaneto      @default(AGUARDANDO)
-  atualizado_em       DateTime        @updatedAt
-  criado_em           DateTime        @default(now())
+  status_pagamento    StatusPagamaneto @default(AGUARDANDO)
+  atualizado_em       DateTime         @updatedAt
+  criado_em           DateTime         @default(now())
 
   @@map("impulsos_eventos")
 }
@@ -113,7 +116,7 @@ model CategoriaEvento {
   titulo        String
   atualizado_em DateTime @updatedAt
   criado_em     DateTime @default(now())
-  Eventos        Evento[]
+  Eventos       Evento[]
 
   @@map("categoria_eventos")
 }
