@@ -21,10 +21,9 @@ model Usuario {
   foto_url      String?
   atualizado_em DateTime @updatedAt
   criado_em     DateTime @default(now())
-  role          String   @default("usuario")
+  role          Role     @default(USUARIO)
   Eventos       Evento[]
-  ativo               Boolean         @default(true)
-
+  ativo         Boolean  @default(true)
 
   @@map("usuarios")
 }
@@ -125,4 +124,9 @@ enum StatusPagamaneto {
   AGUARDANDO
   PAGO
   RECUSADO
+}
+
+enum Role {
+  USUARIO
+  ADMIN
 }
