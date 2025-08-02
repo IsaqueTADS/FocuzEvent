@@ -5,7 +5,7 @@ import autenticacao from "src/middlewares/authMiddleware";
 
 const impulsoRouter = express.Router();
 
-impulsoRouter.use(autenticacao, verificarAdmin);
+
 
 
 export default impulsoRouter;

@@ -10,7 +10,7 @@ import eventosRouter from "./routes/eventosRoutes";
 import usuarioRouter from "./routes/usuariosRoutes";
 import { buscarTodosEstados } from "./controllers/estadosControllers";
 import categoriaRouter from "./routes/categoriasRoutes";
-import impulsoRouter from "./routes/impulsoRoutes";
+import impulsoRouter from "./routes/impulsosEventosRoutes";
 
 const app = express();
 app.use(express.json());
@@ -35,9 +35,5 @@ app.use("/estados", buscarTodosEstados);
 app.use("/cidades", cidadesRouter);
 app.use("/categorias", categoriaRouter);
 app.use("/impulso", impulsoRouter);
-
-app.get("/", (req, res) => {
-  res.send("🚀 Hello World");
-});
 
 export default app;

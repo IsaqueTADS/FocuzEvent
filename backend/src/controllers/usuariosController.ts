@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import z from "zod";
 
 import apagarArquivos from "../utils/apagarArquivos.js";
 import prisma from "../utils/prisma.js";
@@ -22,7 +23,7 @@ export async function atualizarAvatar(req: Request, res: Response) {
     });
 
     if (!usuario) {
-      return res.status(401).json({ error: "Usuario não existe" });
+      return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
     if (usuario.foto_url) {
@@ -37,18 +38,22 @@ export async function atualizarAvatar(req: Request, res: Response) {
     });
 
     return res.status(200).json({
-      messagem: "Upload do avatar completo com sucesso",
+      messagem: "Avatar atualizado com sucesso.",
     });
   } catch {
     return res
       .status(500)
-      .json({ error: "Erro interno ao fazer upload avatar" });
+      .json({ error: "Erro interno ao atualizar o avatar." });
   }
 }
 
 export async function buscarTodosPerfis(req: Request, res: Response) {
   try {
     const usuarios = await prisma.usuario.findMany({
+      where: {
+        role: "USUARIO",
+        ativo: true,
+      },
       select: {
         id: true,
         nome: true,
@@ -58,12 +63,12 @@ export async function buscarTodosPerfis(req: Request, res: Response) {
     });
 
     if (!usuarios.length) {
-      res.status(401).json({ error: "Nenhum usuario cadastrado" });
+      res.status(401).json({ error: "Nenhum usuário encontrado." });
     }
     res.status(200).json(usuarios);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Erro interno ao buscar os usuarios" });
+    res.status(500).json({ error: "Erro interno ao buscar os usuários." });
   }
 }
 
@@ -84,7 +89,7 @@ export async function buscarPerfilUsuario(req: Request, res: Response) {
     });
 
     if (!usuario) {
-      res.status(401).json({ error: "Usuario não econtrado" });
+      res.status(401).json({ error: "Usuário não encontrado." });
       return;
     }
 
@@ -92,26 +97,29 @@ export async function buscarPerfilUsuario(req: Request, res: Response) {
   } catch (err) {
     res
       .status(500)
-      .json({ error: "Erro interno no servidor ao buscar usuario" });
+      .json({ error: "Erro interno ao buscar o perfil do usuário." });
   }
 }
 
 export async function atualizarNome(req: Request, res: Response) {
   try {
+    const nomeSchme = z.object({
+      nome: z.string(),
+    });
     const { usuarioId } = req as AuthRequest;
-    const { nome } = req.body;
+    const { nome } = nomeSchme.parse(req.body);
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuarioId },
       select: { id: true, nome: true },
     });
 
     if (!usuario) {
-      res.status(401).json({ error: "Usuario não econtrado" });
+      res.status(401).json({ error: "Usuário não encontrado." });
       return;
     }
 
     if (!nome) {
-      res.status(400).json({ error: "Dados inválidos" });
+      res.status(400).json({ error: "Dados inválidos. " });
       return;
     }
 
@@ -122,9 +130,9 @@ export async function atualizarNome(req: Request, res: Response) {
       },
     });
 
-    res.status(200).json({ messagem: "Nome atualizado com sucesso" });
+    res.status(200).json({ messagem: "Nome atualizado com sucesso." });
   } catch {
-    res.status(500).json({ error: "Erro interno ao atualizar o nome" });
+    res.status(500).json({ error: "Erro interno ao atualizar o nome." });
   }
 }
 
@@ -134,7 +142,7 @@ export async function alterarSenha(req: Request, res: Response) {
     const { senhaAtual, novaSenha } = req.body;
 
     if (!senhaAtual || !novaSenha) {
-      res.status(400).json({ error: "Dados inválidos" });
+      res.status(400).json({ error: "Dados inválidos. " });
       return;
     }
 
@@ -142,21 +150,21 @@ export async function alterarSenha(req: Request, res: Response) {
       where: { id: usuarioId },
     });
     if (!usuario) {
-      res.status(404).json({ error: "Usuário não encontrado" });
+      res.status(404).json({ error: "Usuário não encontrado." });
       return;
     }
 
     const senhaValida = await bcrypt.compare(senhaAtual, usuario.senha);
 
     if (!senhaValida) {
-      res.status(403).json({ error: "Senha atual incorreta" });
+      res.status(403).json({ error: "Senha atual incorreta." });
       return;
     }
 
     if (senhaAtual === novaSenha) {
       res
         .status(403)
-        .json({ error: "A nova senha deve ser diferente da senha atual" });
+        .json({ error: "A nova senha deve ser diferente da atual." });
       return;
     }
 
@@ -167,11 +175,9 @@ export async function alterarSenha(req: Request, res: Response) {
       data: { senha: novaSenhahash },
     });
 
-    res.status(200).json({ messagem: "Senha atualizada com sucesso" });
+    res.status(200).json({ messagem: "Senha atualizada com sucesso." });
   } catch {
-    res
-      .status(500)
-      .json({ error: "Erro interno no servidor ao tentar alterar senha" });
+    res.status(500).json({ error: "Erro interno ao atualizar a senha." });
   }
 }
 
@@ -184,7 +190,7 @@ export async function deletarUsuario(req: Request, res: Response) {
     });
 
     if (!usuario) {
-      res.status(401).json({ error: "Usuario não econtrado" });
+      res.status(401).json({ error: "Usuário não encontrado." });
       return;
     }
 
@@ -212,8 +218,8 @@ export async function deletarUsuario(req: Request, res: Response) {
       },
     });
 
-    res.status(200).json({ messagem: "Usuario deletado com sucesso" });
+    res.status(200).json({ messagem: "Usuário excluído com sucesso." });
   } catch {
-    res.status(500).json({ error: "Erro interno ao tentar deletar usuarios" });
+    res.status(500).json({ error: "Erro interno ao excluir o usuário." });
   }
 }
