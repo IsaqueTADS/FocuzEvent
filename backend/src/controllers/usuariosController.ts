@@ -63,7 +63,7 @@ export async function buscarTodosPerfis(req: Request, res: Response) {
     });
 
     if (!usuarios.length) {
-      res.status(401).json({ error: "Nenhum usuário encontrado." });
+      return res.status(401).json({ error: "Nenhum usuário encontrado." });
     }
     res.status(200).json(usuarios);
   } catch (error) {

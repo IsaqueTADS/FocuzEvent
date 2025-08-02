@@ -4,14 +4,15 @@ import seedCidades from "./seeds/Cidade";
 import { metodoPagamento } from "./seeds/MetodoDePagamento";
 import Categoria from "./seeds/Categoria";
 import Impulso from "./seeds/Impulso";
+import Admins from "./seeds/Admins";
 
 async function main() {
   // await seedEstados();
   // await seedCidades();
   // await metodoPagamento();
   // await Categoria();
-
-  await Impulso();
+  // await Impulso();
+  await Admins();
 }
 
 main()
