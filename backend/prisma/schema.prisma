@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Usuario {
   id            String   @id @default(uuid())
   nome          String
   email         String   @unique
@@ -21,6 +21,112 @@ model User {
   foto_url      String?
   atualizado_em DateTime @updatedAt
   criado_em     DateTime @default(now())
+  role          Role     @default(USUARIO)
+  Eventos       Evento[]
+  ativo         Boolean  @default(true)
 
   @@map("usuarios")
+}
+
+model Evento {
+  id                  String          @id @default(uuid())
+  titulo              String
+  banner_evento_url   String
+  descricao           String?
+  acessos             Int             @default(0)
+  is_evento_pago      Boolean         @default(false)
+  is_impulsonado      Boolean         @default(false)
+  latitude            Decimal
+  longitude           Decimal
+  data_hora_inicio    DateTime
+  data_hora_fim       DateTime
+  atualizado_em       DateTime        @updatedAt
+  criado_em           DateTime        @default(now())
+  usuario             Usuario         @relation(fields: [usuario_id], references: [id])
+  usuario_id          String
+  cidade              Cidade          @relation(fields: [cidade_id], references: [id])
+  cidade_id           String
+  ImpulsoEventos      ImpulsoEvento[]
+  categoriaEvento     CategoriaEvento @relation(fields: [categoria_evento_id], references: [id])
+  categoria_evento_id String
+  ativo               Boolean         @default(true)
+
+  @@map("eventos")
+}
+
+model Estado {
+  id        String   @id @default(uuid())
+  uf        String
+  nome      String
+  criado_em DateTime @default(now())
+  Cidades   Cidade[]
+
+  @@map("estados")
+}
+
+model Cidade {
+  id        String   @id @default(uuid())
+  nome      String
+  criado_em DateTime @default(now())
+  Eventos   Evento[]
+  estado    Estado   @relation(fields: [estado_id], references: [id])
+  estado_id String
+
+  @@map("cidades")
+}
+
+model MetodoPagamento {
+  id             String          @id @default(uuid())
+  nome           String
+  criado_em      DateTime        @default(now())
+  ImpulsoEventos ImpulsoEvento[]
+
+  @@map("metodos_pagamento")
+}
+
+model Impulso {
+  id            String          @id @default(uuid())
+  valor         Decimal
+  atualizado_em DateTime        @updatedAt
+  criado_em     DateTime        @default(now())
+  ImpulsoEvento ImpulsoEvento[]
+}
+
+model ImpulsoEvento {
+  id                  String           @id @default(uuid())
+  valor_total         Decimal
+  data_hora_inicio    DateTime
+  data_fim            DateTime
+  evento              Evento           @relation(fields: [evento_id], references: [id])
+  evento_id           String
+  impulso             Impulso          @relation(fields: [impulso_id], references: [id])
+  impulso_id          String
+  metodoPagamento     MetodoPagamento  @relation(fields: [metodo_pagamento_id], references: [id])
+  metodo_pagamento_id String
+  status_pagamento    StatusPagamaneto @default(AGUARDANDO)
+  atualizado_em       DateTime         @updatedAt
+  criado_em           DateTime         @default(now())
+
+  @@map("impulsos_eventos")
+}
+
+model CategoriaEvento {
+  id            String   @id @default(uuid())
+  titulo        String
+  atualizado_em DateTime @updatedAt
+  criado_em     DateTime @default(now())
+  Eventos       Evento[]
+
+  @@map("categoria_eventos")
+}
+
+enum StatusPagamaneto {
+  AGUARDANDO
+  PAGO
+  RECUSADO
+}
+
+enum Role {
+  USUARIO
+  ADMIN
 }
