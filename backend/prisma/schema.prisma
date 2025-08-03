@@ -75,15 +75,6 @@ model Cidade {
   @@map("cidades")
 }
 
-model MetodoPagamento {
-  id             String          @id @default(uuid())
-  nome           String
-  criado_em      DateTime        @default(now())
-  ImpulsoEventos ImpulsoEvento[]
-
-  @@map("metodos_pagamento")
-}
-
 model Impulso {
   id            String          @id @default(uuid())
   valor         Decimal
@@ -93,19 +84,18 @@ model Impulso {
 }
 
 model ImpulsoEvento {
-  id                  String           @id @default(uuid())
-  valor_total         Decimal
-  data_hora_inicio    DateTime
-  data_fim            DateTime
-  evento              Evento           @relation(fields: [evento_id], references: [id])
-  evento_id           String
-  impulso             Impulso          @relation(fields: [impulso_id], references: [id])
-  impulso_id          String
-  metodoPagamento     MetodoPagamento  @relation(fields: [metodo_pagamento_id], references: [id])
-  metodo_pagamento_id String
-  status_pagamento    StatusPagamaneto @default(AGUARDANDO)
-  atualizado_em       DateTime         @updatedAt
-  criado_em           DateTime         @default(now())
+  id               String           @id @default(uuid())
+  valor_total      Decimal
+  data_hora_inicio DateTime
+  data_fim         DateTime
+  evento           Evento           @relation(fields: [evento_id], references: [id])
+  evento_id        String
+  impulso          Impulso          @relation(fields: [impulso_id], references: [id])
+  impulso_id       String
+  metodo_pagamento String
+  status_pagamento StatusPagamaneto @default(AGUARDANDO)
+  atualizado_em    DateTime         @updatedAt
+  criado_em        DateTime         @default(now())
 
   @@map("impulsos_eventos")
 }
