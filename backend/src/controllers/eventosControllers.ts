@@ -236,8 +236,8 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       cidadeId: z.string().optional(),
       categoriaEventoId: z.string().optional(),
       usuarioId: z.string().optional(),
-      page: z
-        .preprocess((val) => Number(val), z.number().int().min(0))
+     pagina: z
+        .preprocess((val) => Number(val), z.number().int().min(1))
         .optional()
         .default(1),
       total: z
@@ -245,9 +245,9 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         .optional()
         .default(5),
     });
-    const { cidadeId, categoriaEventoId, usuarioId, page, total } = filtroScheme.parse(req.query);
+    const { cidadeId, categoriaEventoId, usuarioId,pagina, total } = filtroScheme.parse(req.query);
 
-    const skip = (page - 1) * total;
+    const skip = (pagina - 1) * total;
     const take = total;
 
 
@@ -291,6 +291,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: "Dados inválidos" });
     }
+    console.error(error)
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 }

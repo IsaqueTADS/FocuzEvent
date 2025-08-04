@@ -7,6 +7,8 @@ const envSchema = z.object({
     .string()
     .min(10, "A chave JWT deve ter pelo menos 10 caracteres "),
   PORT: z.coerce.number().default(3000),
+  STRIPE_SECRET_KEY: z.string(),
+  STRIPE_WEBHOOK_SECRET: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

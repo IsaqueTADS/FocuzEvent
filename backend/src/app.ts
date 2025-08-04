@@ -10,9 +10,13 @@ import eventosRouter from "./routes/eventosRoutes";
 import usuarioRouter from "./routes/usuariosRoutes";
 import { buscarTodosEstados } from "./controllers/estadosControllers";
 import categoriaRouter from "./routes/categoriasRoutes";
-import impulsoRouter from "./routes/impulsosEventosRoutes";
+import impulsosEventosRouter from "./routes/impulsosEventosRoutes";
+import webhookRouter from "./routes/webhookRoute";
+import estadosRouter from "./routes/estadosRoutes";
 
 const app = express();
+app.use("/webhook", webhookRouter);
+
 app.use(express.json());
 
 app.use(
@@ -31,9 +35,9 @@ app.use("/auth", authRouter);
 app.use("/admin", admRouter);
 app.use("/usuarios", usuarioRouter);
 app.use("/eventos", eventosRouter);
-app.use("/estados", buscarTodosEstados);
+app.use("/estados", estadosRouter);
 app.use("/cidades", cidadesRouter);
 app.use("/categorias", categoriaRouter);
-app.use("/impulso", impulsoRouter);
+app.use("/impulsionar", impulsosEventosRouter);
 
 export default app;

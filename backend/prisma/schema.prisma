@@ -87,7 +87,7 @@ model ImpulsoEvento {
   id               String           @id @default(uuid())
   valor_total      Decimal
   data_hora_inicio DateTime
-  data_fim         DateTime
+  data_hora_fim         DateTime
   evento           Evento           @relation(fields: [evento_id], references: [id])
   evento_id        String
   impulso          Impulso          @relation(fields: [impulso_id], references: [id])
