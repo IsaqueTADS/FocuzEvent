@@ -23,6 +23,14 @@ export async function criarEvento(req: Request, res: Response) {
         if (val === "false") return false;
         return val;
       }, z.boolean()),
+      telefoneContato: z
+        .string()
+        .min(10)
+        .max(15)
+        .regex(/^([1-9]{2})(9?[0-9]{8})$/)
+        .optional(),
+      instagram: z.string().startsWith("@").min(2).max(50).optional(),
+      emailContato: z.email().optional(),
     });
 
     const {
@@ -35,6 +43,9 @@ export async function criarEvento(req: Request, res: Response) {
       cidadeId,
       categoriaEventoId,
       isEventoPago,
+      telefoneContato,
+      instagram,
+      emailContato,
     } = eventoSchema.parse(req.body);
 
     const urlBannerEvento = `http://localhost:3000/uploads/eventos/${bannerEvento?.filename}`;
@@ -61,6 +72,9 @@ export async function criarEvento(req: Request, res: Response) {
         usuario_id: usuarioId,
         categoria_evento_id: categoriaEventoId,
         is_evento_pago: isEventoPago,
+        telefone_contato: telefoneContato,
+        instagram,
+        email_contato: emailContato,
       },
     });
 
@@ -175,9 +189,7 @@ export async function buscarEventosCidade(req: Request, res: Response) {
     res.status(200).json(eventosCidade);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res
-        .status(400)
-        .json({ error: "Dados inválidos" });
+      return res.status(400).json({ error: "Dados inválidos" });
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -236,7 +248,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       cidadeId: z.string().optional(),
       categoriaEventoId: z.string().optional(),
       usuarioId: z.string().optional(),
-     pagina: z
+      pagina: z
         .preprocess((val) => Number(val), z.number().int().min(1))
         .optional()
         .default(1),
@@ -245,17 +257,19 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         .optional()
         .default(5),
     });
-    const { cidadeId, categoriaEventoId, usuarioId,pagina, total } = filtroScheme.parse(req.query);
+    const { cidadeId, categoriaEventoId, usuarioId, pagina, total } =
+      filtroScheme.parse(req.query);
 
     const skip = (pagina - 1) * total;
     const take = total;
 
-
     const eventos = await prisma.evento.findMany({
       where: {
-        ...(usuarioId ? {usuario_id: usuarioId }: {}),
-        ...(cidadeId ? {cidade_id: cidadeId}: {}),
-        ...(categoriaEventoId ? {categoria_evento_id: categoriaEventoId }: {}),
+        ...(usuarioId ? { usuario_id: usuarioId } : {}),
+        ...(cidadeId ? { cidade_id: cidadeId } : {}),
+        ...(categoriaEventoId
+          ? { categoria_evento_id: categoriaEventoId }
+          : {}),
       },
       skip,
       take,
@@ -284,14 +298,15 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       },
     });
 
-    if(eventos.length === 0) return res.status(404).json({ error: "Nenhum evento encontrado." });
+    if (eventos.length === 0)
+      return res.status(404).json({ error: "Nenhum evento encontrado." });
 
     res.status(200).json(eventos);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: "Dados inválidos" });
     }
-    console.error(error)
+    console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
@@ -312,6 +327,14 @@ export async function atualiarEvento(req: Request, res: Response) {
         if (val === "false") return false;
         return val;
       }, z.boolean()),
+      telefoneContato: z
+        .string()
+        .min(10)
+        .max(15)
+        .regex(/^([1-9]{2})(9?[0-9]{8})$/)
+        .optional(),
+      instagram: z.string().startsWith("@").min(2).max(50).optional(),
+      emailContato: z.email().optional(),
     })
     .partial();
 
@@ -325,6 +348,9 @@ export async function atualiarEvento(req: Request, res: Response) {
     cidadeId,
     catagoriaEventoId,
     isEventoPago,
+    telefoneContato,
+    instagram,
+    emailContato,
   } = eventoSchema.parse(req.body);
 
   const { eventoId } = req.params;
@@ -368,15 +394,17 @@ export async function atualiarEvento(req: Request, res: Response) {
       id: eventoId,
     },
     data: {
-      titulo,
-      descricao,
-      data_hora_inicio: dataHoraInicio,
-      data_hora_fim: dataHoraFim,
-      latitude,
-      longitude,
-      cidade_id: cidadeId,
-      categoria_evento_id: catagoriaEventoId,
-      is_evento_pago: isEventoPago,
+      ...(titulo !== undefined && { titulo }),
+      ...(descricao !== undefined && { descricao }),
+      ...(dataHoraInicio !== undefined && { data_hora_inicio: dataHoraInicio }),
+      ...(dataHoraFim !== undefined && { data_hora_fim: dataHoraFim }),
+      ...(latitude !== undefined && { latitude: parseFloat(latitude) }),
+      ...(longitude !== undefined && { longitude: parseFloat(longitude) }),
+      ...(cidadeId !== undefined && { cidade_id: cidadeId }),
+      ...(catagoriaEventoId !== undefined && {
+        categoria_evento_id: catagoriaEventoId,
+      }),
+      ...(isEventoPago !== undefined && { is_evento_pago: isEventoPago }),
     },
   });
 

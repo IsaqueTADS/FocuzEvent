@@ -11,9 +11,9 @@
   - [x] Deve ser possível alterar senha;
   - [x] Deve ser possível criar eventos (apenas logado);
   - [x] Deve ser possível filtrar eventos por cidade;
-  - [ ] Deve ser possível impulsionar eventos;
-  - [ ] Deve ser possível escolher dias de impulsionamento;
-  - [ ] Deve ser possível pagar por impulsionamento (PIX/cartão);
+  - [x] Deve ser possível impulsionar eventos;
+  - [x] Deve ser possível escolher dias de impulsionamento;
+  - [x] Deve ser possível pagar por impulsionamento (PIX/cartão);
   - [ ] Deve exibir eventos impulsionados no banner e aba especial;
 
   ## RNs (Regras de negócio)
@@ -25,8 +25,19 @@
   - [ ] Um evento só pode ser editado ou excluído por quem o criou;
   - [x] Apenas usuários logados podem realizar postagens
   - [x] Eventos devem ter endereço completo e cidade;
-  - [ ] Impulsionamento deve ser pago por dia de exibição;
-  - [ ] Criador pode escolher quantidade de dias de impulsionamento;
+  - [x] Impulsionamento deve ser pago por dia de exibição;
+  - [x] Criador pode escolher quantidade de dias de impulsionamento;
+  - [x] Apenas o criador do evento pode criar impulsos para ele.
+  - [x] Não é permitido criar impulsos com datas sobrepostas a outros impulsos com status "AGUARDANDO" ou "PAGO".
+  - [x] Um impulso só pode ser criado se a data de início for igual ou posterior à data e hora atual.
+  - [x] Um impulso só pode ocorrer dentro do intervalo de tempo definido pelo evento.
+  - [x] A data de término do impulso deve ser posterior à data de início.
+  - [x] Um impulso só pode ser criado se o impulso (plano) informado existir no sistema.
+  - [x] O valor total do impulso deve ser calculado com base na quantidade de dias selecionados.
+  - [] 
+  - [] 
+  - [] 
+  - [] 
 
   ## RNFs (Requisitos não-funcionais)
 

@@ -50,13 +50,16 @@ model Evento {
   categoriaEvento     CategoriaEvento @relation(fields: [categoria_evento_id], references: [id])
   categoria_evento_id String
   ativo               Boolean         @default(true)
+  telefone_contato    String?
+  instagram           String?
+  email_contato       String?
 
   @@map("eventos")
 }
 
 model Estado {
   id        String   @id @default(uuid())
-  uf        String
+  uf        String   
   nome      String
   criado_em DateTime @default(now())
   Cidades   Cidade[]
@@ -87,7 +90,7 @@ model ImpulsoEvento {
   id               String           @id @default(uuid())
   valor_total      Decimal
   data_hora_inicio DateTime
-  data_hora_fim         DateTime
+  data_hora_fim    DateTime
   evento           Evento           @relation(fields: [evento_id], references: [id])
   evento_id        String
   impulso          Impulso          @relation(fields: [impulso_id], references: [id])
@@ -96,6 +99,7 @@ model ImpulsoEvento {
   status_pagamento StatusPagamaneto @default(AGUARDANDO)
   atualizado_em    DateTime         @updatedAt
   criado_em        DateTime         @default(now())
+  acessos          Int              @default(0)
 
   @@map("impulsos_eventos")
 }
