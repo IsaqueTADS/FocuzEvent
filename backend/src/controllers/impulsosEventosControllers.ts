@@ -35,7 +35,6 @@ export async function criarImpulso(req: Request, res: Response) {
     const dataInicioEvento = new Date(evento.data_hora_inicio);
     const dataFimEvento = new Date(evento.data_hora_fim);
 
-    console.log(inicio, dataFimEvento);
 
     if (inicio > dataFimEvento) {
       return res.status(400).json({
@@ -114,7 +113,6 @@ export async function criarImpulso(req: Request, res: Response) {
         .status(400)
         .json({ error: "Dados inválidos", messagem: z.treeifyError(error) });
     }
-    console.log(error)
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
