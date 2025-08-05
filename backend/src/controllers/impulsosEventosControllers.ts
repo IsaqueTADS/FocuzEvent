@@ -18,6 +18,24 @@ export async function criarImpulso(req: Request, res: Response) {
     const { eventoId, impulsoId, dataHoraInicio, dataHoraFim } =
       impulsoSchema.parse(req.body);
 
+    const impulsosConflitantes = await prisma.impulsoEvento.findMany({
+      where: {
+        evento_id: eventoId,
+        status_pagamento: {
+          in: ["AGUARDANDO", "PAGO"],
+        },
+        data_hora_inicio: { lte: dataHoraFim },
+        data_hora_fim: { gte: dataHoraInicio },
+      },
+    });
+
+    if (impulsosConflitantes.length > 0) {
+      return res.status(400).json({
+        error:
+          "O periodo do impulso conflita com outro impulso existente ou em aguardo de pagamento.",
+      });
+    }
+
     const inicio = new Date(dataHoraInicio);
     const fim = new Date(dataHoraFim);
 
@@ -26,7 +44,14 @@ export async function criarImpulso(req: Request, res: Response) {
         id: eventoId,
         usuario_id: usuarioId,
       },
+      include: {
+        ImpulsoEventos: true,
+      },
     });
+
+    const dataAtual = new Date();
+
+    console.log(dataAtual);
 
     if (!evento) {
       return res.status(404).json({ error: "Evento não econtrado." });
@@ -35,25 +60,30 @@ export async function criarImpulso(req: Request, res: Response) {
     const dataInicioEvento = new Date(evento.data_hora_inicio);
     const dataFimEvento = new Date(evento.data_hora_fim);
 
+    if (inicio < dataAtual) {
+      return res.status(400).json({
+        Error: "A data e hora de inicio não pode ser inferior a data atual",
+      });
+    }
 
     if (inicio > dataFimEvento) {
       return res.status(400).json({
         error:
-          "A data de incio do impulso não pode ser maior que a data final do evento.",
+          "A data e hora de incio do impulso não pode ser maior que a data e hora final do evento.",
       });
     }
 
     if (fim > dataFimEvento) {
       return res.status(400).json({
         error:
-          "A data de fim do impulso não pode ser maior que a data final do evento.",
+          "A data e hora de fim do impulso não pode ser maior que a data final do evento.",
       });
     }
 
     if (fim <= inicio) {
-      return res
-        .status(400)
-        .json({ error: "A data final deve ser maior que a data inicial." });
+      return res.status(400).json({
+        error: "A data e hora final deve ser maior que a data inicial.",
+      });
     }
 
     const diferencaMs = fim.getTime() - inicio.getTime();
@@ -116,21 +146,3 @@ export async function criarImpulso(req: Request, res: Response) {
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
-
-// export async function buscarImpulso(req: Request, res: Response) {
-//   try {
-
-//   } catch (error) {
-//     res.status(500).json({ error: "Erro interno no servidor." });
-//   }
-// }
-
-
-
-// export async function buscarImpulso(req: Request, res: Response) {
-//   try {
-
-//   } catch (error) {
-//     res.status(500).json({ error: "Erro interno no servidor." });
-//   }
-// }
