@@ -18,6 +18,20 @@ export async function criarImpulso(req: Request, res: Response) {
     const { eventoId, impulsoId, dataHoraInicio, dataHoraFim } =
       impulsoSchema.parse(req.body);
 
+    const evento = await prisma.evento.findFirst({
+      where: {
+        id: eventoId,
+        usuario_id: usuarioId,
+      },
+      include: {
+        ImpulsoEventos: true,
+      },
+    });
+
+    if (!evento) {
+      return res.status(404).json({ error: "Evento não econtrado." });
+    }
+
     const impulsosConflitantes = await prisma.impulsoEvento.findMany({
       where: {
         evento_id: eventoId,
@@ -39,23 +53,7 @@ export async function criarImpulso(req: Request, res: Response) {
     const inicio = new Date(dataHoraInicio);
     const fim = new Date(dataHoraFim);
 
-    const evento = await prisma.evento.findFirst({
-      where: {
-        id: eventoId,
-        usuario_id: usuarioId,
-      },
-      include: {
-        ImpulsoEventos: true,
-      },
-    });
-
     const dataAtual = new Date();
-
-    console.log(dataAtual);
-
-    if (!evento) {
-      return res.status(404).json({ error: "Evento não econtrado." });
-    }
 
     const dataInicioEvento = new Date(evento.data_hora_inicio);
     const dataFimEvento = new Date(evento.data_hora_fim);
