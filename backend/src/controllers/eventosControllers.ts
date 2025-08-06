@@ -465,13 +465,14 @@ export async function buscarEventosImpulsionado(req: Request, res: Response) {
         evento: {
           ativo: true,
           usuario: {
-            role: "ADMIN",
+            role: "USUARIO",
           },
         },
       },
       select: {
         id: true,
         acessos: true,
+        banner_url: true,
         evento: {
           include: {
             cidade: {
@@ -503,6 +504,70 @@ export async function buscarEventosImpulsionado(req: Request, res: Response) {
     }
 
     res.status(200).json(impulsosEventos);
+  } catch {
+    res.status(500).json({ error: "Erro interno no servidor." });
+  }
+}
+
+export async function buscarEventoImpulsionadoUnico(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { impulsoEventoId } = req.params;
+    const dataAtual = new Date();
+
+    const evento = await prisma.impulsoEvento.findFirst({
+      where: {
+        id: impulsoEventoId,
+        data_hora_fim: {
+          gte: dataAtual,
+        },
+      },
+      select: {
+        id: true,
+        banner_url: true,
+        acessos: true,
+        evento: {
+          include: {
+            cidade: {
+              select: {
+                nome: true,
+                estado: { select: { uf: true, nome: true } },
+              },
+            },
+            usuario: {
+              select: {
+                nome: true,
+              },
+            },
+            categoriaEvento: {
+              select: {
+                id: true,
+                titulo: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!evento) {
+      return res.status(404).json({ error: "Nenhum evento econtrado." });
+    }
+
+    await prisma.impulsoEvento.update({
+      where: {
+        id: evento.id,
+      },
+      data: {
+        acessos: {
+          increment: 1,
+        },
+      },
+    });
+
+    res.status(200).json(evento);
   } catch {
     res.status(500).json({ error: "Erro interno no servidor." });
   }

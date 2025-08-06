@@ -1,6 +1,10 @@
 import express from "express";
 import { atualizarimpulso } from "src/controllers/adminControllers";
-import { atualizarBannerImpulso, criarImpulso } from "src/controllers/impulsosEventosControllers";
+import {
+  atualizarBannerImpulso,
+  buscarEventosImpulsionadoUsuario,
+  criarImpulso,
+} from "src/controllers/impulsosEventosControllers";
 
 import verificarAdmin from "src/middlewares/adminMiddleware";
 import autenticacao from "src/middlewares/authMiddleware";
@@ -17,6 +21,11 @@ impulsosEventosRouter.patch(
   verificarPagamentoImpulso,
   uploadBannerImpulso.single("banner_evento_impulso"),
   atualizarBannerImpulso
+);
+impulsosEventosRouter.get(
+  "/me",
+  autenticacao,
+  buscarEventosImpulsionadoUsuario
 );
 
 export default impulsosEventosRouter;

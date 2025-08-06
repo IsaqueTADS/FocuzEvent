@@ -1,8 +1,9 @@
 import express from "express";
-import { buscarTodosEventos } from "src/controllers/eventosControllers";
+import { buscarTodosEstados } from "src/controllers/estadosControllers";
+
 
 const estadosRouter = express.Router();
 
-estadosRouter.get("/todos", buscarTodosEventos);
+estadosRouter.get("/todos", buscarTodosEstados);
 
 export default estadosRouter;

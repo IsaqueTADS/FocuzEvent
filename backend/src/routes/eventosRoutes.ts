@@ -2,6 +2,7 @@ import express from "express";
 import {
   atualiarEvento,
   buscarEvento,
+  buscarEventoImpulsionadoUnico,
   buscarEventosCidade,
   buscarEventosFiltrados,
   buscarEventosImpulsionado,
@@ -9,6 +10,7 @@ import {
   buscarTodosEventos,
   criarEvento,
 } from "src/controllers/eventosControllers";
+import { buscarEventosImpulsionadoUsuario } from "src/controllers/impulsosEventosControllers";
 import autenticacao from "src/middlewares/authMiddleware";
 import uploadBannerEventos from "src/middlewares/uploadBannerEvento";
 
@@ -31,5 +33,9 @@ eventosRouter.put(
   atualiarEvento
 );
 eventosRouter.get("/todos/impulsionados", buscarEventosImpulsionado);
+eventosRouter.get(
+  "/unico/impulsionado/:impulsoEventoId",
+  buscarEventoImpulsionadoUnico
+);
 
 export default eventosRouter;

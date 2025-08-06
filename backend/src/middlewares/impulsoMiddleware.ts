@@ -10,8 +10,7 @@ const verificarPagamentoImpulso = async (
   try {
     const { impulsoId } = req.params;
     const { usuarioId } = req as AuthRequest;
-
-    console.log(impulsoId);
+    const dataAtual = new Date();
 
     if (!impulsoId) {
       return res.status(400).json({ erro: "ID do impulso não informado." });
@@ -20,6 +19,9 @@ const verificarPagamentoImpulso = async (
     const pago = await prisma.impulsoEvento.findFirst({
       where: {
         id: impulsoId,
+        data_hora_fim : {
+          gte: dataAtual
+        },
         evento: {
           usuario_id: usuarioId,
         },

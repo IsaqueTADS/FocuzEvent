@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { stripe } from "src/config/stripe";
+import apagarArquivos from "src/utils/apagarArquivos";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
 import z from "zod";
@@ -146,7 +147,65 @@ export async function criarImpulso(req: Request, res: Response) {
 }
 
 export async function atualizarBannerImpulso(req: Request, res: Response) {
-  res
-    .status(200)
-    .json({ messagem: "Banner do impulso atualizado com sucesso" });
+  try {
+    const { impulsoId } = req.params;
+
+    const impulsoEvento = await prisma.impulsoEvento.findFirst({
+      where: {
+        id: impulsoId,
+      },
+      select: {
+        id: true,
+        banner_url: true,
+      },
+    });
+
+    if (impulsoEvento?.banner_url) {
+      apagarArquivos(impulsoEvento?.banner_url, "impulsos");
+    }
+
+    const bannerImpulso = req.file;
+    const urlBanner = `http://localhost:3000/uploads/impulsos/${bannerImpulso?.filename}`;
+
+    await prisma.impulsoEvento.update({
+      where: {
+        id: impulsoEvento?.id,
+      },
+      data: {
+        banner_url: urlBanner,
+      },
+    });
+
+    res
+      .status(200)
+      .json({ messagem: "Banner do impulso atualizado com sucesso." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erro interno no servidor." });
+  }
+}
+
+export async function buscarEventosImpulsionadoUsuario(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { usuarioId } = req as AuthRequest;
+
+    const impulsos = await prisma.impulsoEvento.findMany({
+      where: {
+        evento: {
+          usuario_id: usuarioId,
+        },
+      },
+    });
+
+    if (impulsos.length === 0) {
+      res.status(404).json({ error: "Nenhum impulso econtrado." });
+    }
+
+    res.status(200).json(impulsos);
+  } catch {
+    res.status(500).json({ error: "Erro interno no servidor." });
+  }
 }

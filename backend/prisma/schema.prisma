@@ -88,6 +88,7 @@ model Impulso {
 
 model ImpulsoEvento {
   id               String           @id @default(uuid())
+  banner_url       String?
   valor_total      Decimal
   data_hora_inicio DateTime
   data_hora_fim    DateTime
