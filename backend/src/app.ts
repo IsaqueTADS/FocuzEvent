@@ -38,6 +38,6 @@ app.use("/eventos", eventosRouter);
 app.use("/estados", estadosRouter);
 app.use("/cidades", cidadesRouter);
 app.use("/categorias", categoriaRouter);
-app.use("/impulsionar", impulsosEventosRouter);
+app.use("/impulsos", impulsosEventosRouter);
 
 export default app;

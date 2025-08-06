@@ -10,7 +10,7 @@ async function main() {
   // await seedCidades();
   // await Categoria();
   // await Impulso();
-  await Admins();
+  // await Admins();
 }
 
 main()

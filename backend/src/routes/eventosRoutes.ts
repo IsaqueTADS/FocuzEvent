@@ -4,6 +4,7 @@ import {
   buscarEvento,
   buscarEventosCidade,
   buscarEventosFiltrados,
+  buscarEventosImpulsionado,
   buscarEventosUsuario,
   buscarTodosEventos,
   criarEvento,
@@ -29,5 +30,6 @@ eventosRouter.put(
   uploadBannerEventos.single("atualizar_banner_evento"),
   atualiarEvento
 );
+eventosRouter.get("/todos/impulsionados", buscarEventosImpulsionado);
 
 export default eventosRouter;

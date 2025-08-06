@@ -16,6 +16,7 @@ export default async function Categoria() {
       { titulo: "Religioso" },
       { titulo: "Tradições Locais" },
       { titulo: "Gospel" },
+      { titulo: "Reuniões & Encontros" },
     ],
     skipDuplicates: true,
   });

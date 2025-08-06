@@ -29,7 +29,6 @@ export const webhookStripe = async (req: Request, res: Response) => {
 
     const paymentIntentId = session.payment_intent as string;
 
-
     if (!paymentIntentId) {
       console.warn("Nenhum payment_intent encontrado na sessão.");
       return;
@@ -42,6 +41,24 @@ export const webhookStripe = async (req: Request, res: Response) => {
     await prisma.impulsoEvento.update({
       where: { id: impulsoEventoId },
       data: { status_pagamento: "PAGO", metodo_pagamento: metodo },
+    });
+
+    const impulsoEvento = await prisma.impulsoEvento.findUnique({
+      where: {
+        id: impulsoEventoId,
+      },
+      include: {
+        evento: true,
+      },
+    });
+
+    const evento = await prisma.evento.update({
+      where: {
+        id: impulsoEvento?.evento_id,
+      },
+      data: {
+        is_impulsonado: true,
+      },
     });
 
     console.log(`Pagamento aprovado para impulso ${impulsoEventoId}`);

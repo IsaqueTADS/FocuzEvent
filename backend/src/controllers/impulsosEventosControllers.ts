@@ -144,3 +144,9 @@ export async function criarImpulso(req: Request, res: Response) {
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
+
+export async function atualizarBannerImpulso(req: Request, res: Response) {
+  res
+    .status(200)
+    .json({ messagem: "Banner do impulso atualizado com sucesso" });
+}

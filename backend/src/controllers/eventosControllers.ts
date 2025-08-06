@@ -93,6 +93,9 @@ export async function buscarTodosEventos(req: Request, res: Response) {
     const eventos = await prisma.evento.findMany({
       where: {
         ativo: true,
+        usuario: {
+          role: "USUARIO",
+        },
       },
       include: {
         cidade: {
@@ -169,7 +172,13 @@ export async function buscarEventosCidade(req: Request, res: Response) {
     if (!cidade) return res.status(404).json({ error: "Cidade não econtrada" });
 
     const eventosCidade = await prisma.evento.findMany({
-      where: { cidade_id, ativo: true },
+      where: {
+        cidade_id,
+        ativo: true,
+        usuario: {
+          role: "USUARIO",
+        },
+      },
       include: {
         cidade: {
           select: {
@@ -285,6 +294,9 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         ...(categoriaEventoId
           ? { categoria_evento_id: categoriaEventoId }
           : {}),
+        usuario: {
+          role: "USUARIO",
+        },
       },
       skip,
       take,
@@ -369,8 +381,6 @@ export async function atualiarEvento(req: Request, res: Response) {
       emailContato,
     } = eventoSchema.parse(req.body);
 
-    console.log(instagram);
-
     const { eventoId } = req.params;
     const { usuarioId } = req as AuthRequest;
 
@@ -391,7 +401,6 @@ export async function atualiarEvento(req: Request, res: Response) {
 
     const bannerEvento = req.file;
     if (bannerEvento) {
-      console.log(evento.banner_evento_url);
       if (evento.banner_evento_url !== null) {
         apagarArquivos(evento.banner_evento_url, "eventos");
       }
@@ -441,6 +450,60 @@ export async function atualiarEvento(req: Request, res: Response) {
         .json({ error: "Dados inválidos", messagem: z.treeifyError(error) });
     }
     console.error(error);
+    res.status(500).json({ error: "Erro interno no servidor." });
+  }
+}
+
+export async function buscarEventosImpulsionado(req: Request, res: Response) {
+  try {
+    const dataAtual = new Date();
+
+    const impulsosEventos = await prisma.impulsoEvento.findMany({
+      where: {
+        status_pagamento: "PAGO",
+        data_hora_fim: { gte: dataAtual },
+        evento: {
+          ativo: true,
+          usuario: {
+            role: "ADMIN",
+          },
+        },
+      },
+      select: {
+        id: true,
+        acessos: true,
+        evento: {
+          include: {
+            cidade: {
+              select: {
+                nome: true,
+                estado: { select: { uf: true, nome: true } },
+              },
+            },
+            usuario: {
+              select: {
+                nome: true,
+              },
+            },
+            categoriaEvento: {
+              select: {
+                id: true,
+                titulo: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (impulsosEventos.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Nenhum evento impulsionado econtrado." });
+    }
+
+    res.status(200).json(impulsosEventos);
+  } catch {
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
