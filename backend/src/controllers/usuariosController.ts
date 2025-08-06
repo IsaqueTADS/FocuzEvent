@@ -75,8 +75,8 @@ export async function buscarTodosPerfis(req: Request, res: Response) {
 export async function buscarPerfilUsuario(req: Request, res: Response) {
   try {
     const { usuarioId } = req as AuthRequest;
-    const usuario = await prisma.usuario.findUnique({
-      where: { id: usuarioId },
+    const usuario = await prisma.usuario.findFirst({
+      where: { id: usuarioId, role: "USUARIO" },
       select: {
         id: true,
         nome: true,
@@ -203,18 +203,11 @@ export async function deletarUsuario(req: Request, res: Response) {
       },
     });
 
-    const eventos3 = await prisma.evento.findMany({
-      where: {
-        usuario_id: usuarioId,
-      },
-    });
-
-    console.log(eventos3);
-
     await prisma.usuario.update({
       where: { id: usuarioId },
       data: {
         ativo: false,
+        email: `descartado_${usuario.email}_${usuario.id}`,
       },
     });
 

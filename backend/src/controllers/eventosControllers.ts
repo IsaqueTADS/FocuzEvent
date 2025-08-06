@@ -143,6 +143,10 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
       },
     });
 
+    if (eventosUsuario.length === 0) {
+      return res.status(404).json({ error: "Nenhum evento econtrado" });
+    }
+
     res.status(200).json(eventosUsuario);
   } catch {
     res.status(500).json({ error: "Erro interno no servidor" });
@@ -236,6 +240,17 @@ export async function buscarEvento(req: Request, res: Response) {
       return res.status(404).json({ error: "Nenhum evento econtrado" });
     }
 
+    await prisma.evento.update({
+      where: {
+        id: evento.id,
+      },
+      data: {
+        acessos: {
+          increment: 1,
+        },
+      },
+    });
+
     res.status(200).json(evento);
   } catch {
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -312,105 +327,113 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
 }
 
 export async function atualiarEvento(req: Request, res: Response) {
-  const eventoSchema = z
-    .object({
-      titulo: z.string().min(1),
-      descricao: z.string().min(1),
-      dataHoraInicio: z.iso.datetime(),
-      dataHoraFim: z.iso.datetime(),
-      latitude: z.string(),
-      longitude: z.string(),
-      cidadeId: z.string(),
-      catagoriaEventoId: z.string(),
-      isEventoPago: z.preprocess((val) => {
-        if (val === "true") return true;
-        if (val === "false") return false;
-        return val;
-      }, z.boolean()),
-      telefoneContato: z
-        .string()
-        .min(10)
-        .max(15)
-        .regex(/^([1-9]{2})(9?[0-9]{8})$/)
-        .optional(),
-      instagram: z.string().startsWith("@").min(2).max(50).optional(),
-      emailContato: z.email().optional(),
-    })
-    .partial();
+  try {
+    const eventoSchema = z
+      .object({
+        titulo: z.string().min(1),
+        descricao: z.string().min(1),
+        dataHoraInicio: z.iso.datetime(),
+        dataHoraFim: z.iso.datetime(),
+        latitude: z.string(),
+        longitude: z.string(),
+        cidadeId: z.string(),
+        catagoriaEventoId: z.string(),
+        isEventoPago: z.preprocess((val) => {
+          if (val === "true") return true;
+          if (val === "false") return false;
+          return val;
+        }, z.boolean()),
+        telefoneContato: z
+          .string()
+          .min(10)
+          .max(15)
+          .regex(/^([1-9]{2})(9?[0-9]{8})$/)
+          .optional(),
+        instagram: z.string().startsWith("@").min(2).max(50).optional(),
+        emailContato: z.email().optional(),
+      })
+      .partial();
 
-  const {
-    titulo,
-    descricao,
-    dataHoraInicio,
-    dataHoraFim,
-    latitude,
-    longitude,
-    cidadeId,
-    catagoriaEventoId,
-    isEventoPago,
-    telefoneContato,
-    instagram,
-    emailContato,
-  } = eventoSchema.parse(req.body);
+    const {
+      titulo,
+      descricao,
+      dataHoraInicio,
+      dataHoraFim,
+      latitude,
+      longitude,
+      cidadeId,
+      catagoriaEventoId,
+      isEventoPago,
+      telefoneContato,
+      instagram,
+      emailContato,
+    } = eventoSchema.parse(req.body);
 
-  const { eventoId } = req.params;
-  const { usuarioId } = req as AuthRequest;
+    console.log(instagram);
 
-  const evento = await prisma.evento.findFirst({
-    where: {
-      id: eventoId,
-      usuario_id: usuarioId,
-    },
-  });
+    const { eventoId } = req.params;
+    const { usuarioId } = req as AuthRequest;
 
-  if (!evento) {
-    return res.status(404).json({ error: "Nenhum evento econtrado" });
-  }
+    const evento = await prisma.evento.findFirst({
+      where: {
+        id: eventoId,
+        usuario_id: usuarioId,
+      },
+    });
 
-  if (evento.ativo === false) {
-    return res.status(404).json({ error: "Nenhum evento econtrado" });
-  }
-
-  const bannerEvento = req.file;
-  if (bannerEvento) {
-    console.log(evento.banner_evento_url);
-    if (evento.banner_evento_url !== null) {
-      apagarArquivos(evento.banner_evento_url, "eventos");
+    if (!evento) {
+      return res.status(404).json({ error: "Nenhum evento econtrado" });
     }
 
-    const urlBannerEvento = `http://localhost:3000/uploads/eventos/${bannerEvento?.filename}`;
+    if (evento.ativo === false) {
+      return res.status(404).json({ error: "Nenhum evento econtrado" });
+    }
+
+    const bannerEvento = req.file;
+    if (bannerEvento) {
+      console.log(evento.banner_evento_url);
+      if (evento.banner_evento_url !== null) {
+        apagarArquivos(evento.banner_evento_url, "eventos");
+      }
+
+      const urlBannerEvento = `http://localhost:3000/uploads/eventos/${bannerEvento?.filename}`;
+      await prisma.evento.update({
+        where: {
+          id: eventoId,
+        },
+        data: {
+          banner_evento_url: urlBannerEvento,
+        },
+      });
+    }
+
     await prisma.evento.update({
       where: {
         id: eventoId,
       },
       data: {
-        banner_evento_url: urlBannerEvento,
+        ...(titulo !== undefined && { titulo }),
+        ...(descricao !== undefined && { descricao }),
+        ...(dataHoraInicio !== undefined && {
+          data_hora_inicio: dataHoraInicio,
+        }),
+        ...(dataHoraFim !== undefined && { data_hora_fim: dataHoraFim }),
+        ...(latitude !== undefined && { latitude: parseFloat(latitude) }),
+        ...(longitude !== undefined && { longitude: parseFloat(longitude) }),
+        ...(cidadeId !== undefined && { cidade_id: cidadeId }),
+        ...(catagoriaEventoId !== undefined && {
+          categoria_evento_id: catagoriaEventoId,
+        }),
+        ...(isEventoPago !== undefined && { is_evento_pago: isEventoPago }),
+        ...(telefoneContato !== undefined && {
+          telefone_contato: telefoneContato,
+        }),
+        ...(instagram !== undefined && { instagram }),
+        ...(emailContato !== undefined && { email_contato: emailContato }),
       },
     });
-  }
 
-  await prisma.evento.update({
-    where: {
-      id: eventoId,
-    },
-    data: {
-      ...(titulo !== undefined && { titulo }),
-      ...(descricao !== undefined && { descricao }),
-      ...(dataHoraInicio !== undefined && { data_hora_inicio: dataHoraInicio }),
-      ...(dataHoraFim !== undefined && { data_hora_fim: dataHoraFim }),
-      ...(latitude !== undefined && { latitude: parseFloat(latitude) }),
-      ...(longitude !== undefined && { longitude: parseFloat(longitude) }),
-      ...(cidadeId !== undefined && { cidade_id: cidadeId }),
-      ...(catagoriaEventoId !== undefined && {
-        categoria_evento_id: catagoriaEventoId,
-      }),
-      ...(isEventoPago !== undefined && { is_evento_pago: isEventoPago }),
-    },
-  });
-
-  res.status(200).send();
-
-  try {
+    res.status(200).json({ messagem: "Evento atualizado com sucesso" });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res

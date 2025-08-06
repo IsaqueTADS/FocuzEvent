@@ -27,10 +27,10 @@ export default async function seedCidades() {
     mapaUfParaId.set(estado.uf, estado.id);
   });
 
-  const caminhoJson = path.resolve(__dirname, "../../jsonExterno/Cidades.json");
+  const caminhoJson = path.resolve(__dirname, "../../arquivos-jsons/Cidades.json");
   const caminhoJson2 = path.resolve(
     __dirname,
-    "../../jsonExterno/Estados.json"
+    "../../arquivos-jsons/Estados.json"
   );
 
   const conteudo = await fs.readFile(caminhoJson, "utf-8");
