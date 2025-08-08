@@ -5,7 +5,7 @@ import {
   buscarEventoImpulsionadoUnico,
   buscarEventosCidade,
   buscarEventosFiltrados,
-  buscarEventosImpulsionado,
+  buscarEventosImpulsionadoFiltro,
   buscarEventosUsuario,
   buscarTodosEventos,
   criarEvento,
@@ -19,7 +19,7 @@ eventosRouter.get("/cidade", buscarEventosCidade);
 eventosRouter.get("/me", autenticacao, buscarEventosUsuario);
 eventosRouter.get("/", buscarEventosFiltrados);
 eventosRouter.get("/:eventoId", buscarEvento);
-eventosRouter.get("/todos/impulsionados", buscarEventosImpulsionado);
+eventosRouter.get("/todos/impulsionados", buscarEventosImpulsionadoFiltro);
 eventosRouter.get(
   "/unico/impulsionado/:impulsoEventoId",
   buscarEventoImpulsionadoUnico

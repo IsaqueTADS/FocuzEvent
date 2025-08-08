@@ -282,7 +282,7 @@ export async function buscarEvento(req: Request, res: Response) {
 
 export async function buscarEventosFiltrados(req: Request, res: Response) {
   try {
-    const filtroScheme = z.object({
+    const filtroSchema = z.object({
       cidadeId: z.string().optional(),
       categoriaEventoId: z.string().optional(),
       usuarioId: z.string().optional(),
@@ -295,7 +295,8 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         .optional()
         .default(5),
     });
-    const { cidadeId, categoriaEventoId, usuarioId, pagina, total } = filtroScheme.parse(req.query);
+    const { cidadeId, categoriaEventoId, usuarioId, pagina, total } =
+      filtroSchema.parse(req.query);
 
     const skip = (pagina - 1) * total;
     const take = total;
@@ -473,9 +474,32 @@ export async function atualiarEvento(req: Request, res: Response) {
   }
 }
 
-export async function buscarEventosImpulsionado(req: Request, res: Response) {
+export async function buscarEventosImpulsionadoFiltro(
+  req: Request,
+  res: Response
+) {
   try {
     const dataAtual = new Date();
+
+    const filtroSchema = z.object({
+      cidadeId: z.string().optional(),
+      categoriaEventoId: z.string().optional(),
+      usuarioId: z.string().optional(),
+      pagina: z
+        .preprocess((val) => Number(val), z.number().int().min(1))
+        .optional()
+        .default(1),
+      total: z
+        .preprocess((val) => Number(val), z.number().int())
+        .optional()
+        .default(5),
+    });
+
+    const { cidadeId, categoriaEventoId, usuarioId, pagina, total } =
+      filtroSchema.parse(req.query);
+
+    const skip = (pagina - 1) * total;
+    const take = total;
 
     const impulsosEventos = await prisma.impulsoEvento.findMany({
       where: {
@@ -483,6 +507,11 @@ export async function buscarEventosImpulsionado(req: Request, res: Response) {
         data_hora_fim: { gte: dataAtual },
         evento: {
           ativo: true,
+          ...(usuarioId ? { usuario_id: usuarioId } : {}),
+          ...(cidadeId ? { cidade_id: cidadeId } : {}),
+          ...(categoriaEventoId
+            ? { categoria_evento_id: categoriaEventoId }
+            : {}),
           usuario: {
             role: "USUARIO",
           },
@@ -514,6 +543,11 @@ export async function buscarEventosImpulsionado(req: Request, res: Response) {
           },
         },
       },
+      skip,
+      take,
+      orderBy: {
+        criado_em: "asc",
+      },
     });
 
     if (impulsosEventos.length === 0) {
@@ -522,7 +556,11 @@ export async function buscarEventosImpulsionado(req: Request, res: Response) {
     }
 
     res.status(200).json(impulsosEventos);
-  } catch {
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
+    }
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
