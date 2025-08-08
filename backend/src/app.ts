@@ -5,14 +5,13 @@ import { fileURLToPath } from "url";
 
 import admRouter from "./routes/adminRoutes";
 import authRouter from "./routes/authRoutes";
-import cidadesRouter from "./routes/cidadesRoutes";
-import eventosRouter from "./routes/eventosRoutes";
-import usuarioRouter from "./routes/usuariosRoutes";
-import { buscarTodosEstados } from "./controllers/estadosControllers";
 import categoriaRouter from "./routes/categoriasRoutes";
-import impulsosEventosRouter from "./routes/impulsosEventosRoutes";
-import webhookRouter from "./routes/webhookRoute";
+import cidadesRouter from "./routes/cidadesRoutes";
 import estadosRouter from "./routes/estadosRoutes";
+import eventosRouter from "./routes/eventosRoutes";
+import impulsosEventosRouter from "./routes/impulsosEventosRoutes";
+import usuarioRouter from "./routes/usuariosRoutes";
+import webhookRouter from "./routes/webhookRoute";
 
 const app = express();
 app.use("/webhook", webhookRouter);

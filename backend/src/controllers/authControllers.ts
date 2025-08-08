@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-
-import prisma from "../utils/prisma.js";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { env } from "src/env/index.js";
 import { z } from "zod";
+
+import prisma from "../utils/prisma.js";
 
 export async function criarUsuario(req: Request, res: Response) {
   try {
@@ -17,7 +17,8 @@ export async function criarUsuario(req: Request, res: Response) {
     const validacao = authSchema.safeParse(req.body);
 
     if (validacao.success === false) {
-      return res.status(400).json({ errors: "Dados inválidos" });
+      res.status(400).json({ errors: "Dados inválidos" });
+      return;
     }
 
     const { nome, email, senha } = validacao.data;
@@ -60,7 +61,8 @@ export async function logarUsuario(req: Request, res: Response) {
     const validacao = authSchema.safeParse(req.body);
 
     if (validacao.success === false) {
-      return res.status(400).json({ errors: "Dados inválidos" });
+      res.status(400).json({ errors: "Dados inválidos" });
+      return;
     }
 
     const { email, senha } = validacao.data;

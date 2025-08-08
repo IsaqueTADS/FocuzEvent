@@ -7,8 +7,8 @@ export async function buscarAdmin(req: Request, res: Response) {
   const { usuarioId } = req as AuthRequest;
 
   try {
-    const usuarioAdmin = await prisma.usuario.findUnique({
-      where: { id: usuarioId },
+    const usuarioAdmin = await prisma.usuario.findFirst({
+      where: { id: usuarioId, role: "ADMIN" },
       select: {
         id: true,
         nome: true,
@@ -21,7 +21,7 @@ export async function buscarAdmin(req: Request, res: Response) {
     });
     res.status(200).json(usuarioAdmin);
   } catch (error) {
-    return res.status(500).json({ error: "Erro interno no servidor" });
+    res.status(500).json({ error: "Erro interno no servidor" });
   }
 }
 
@@ -30,8 +30,12 @@ export async function atualizarimpulso(req: Request, res: Response) {
     const impulsoIdSchema = z.object({
       impulsoId: z.string(),
     });
+    const novoValorSchema = z.object({
+      novoValor: z.number().min(1),
+    });
 
     const { impulsoId } = impulsoIdSchema.parse(req.params);
+    const { novoValor } = novoValorSchema.parse(req.body);
 
     const impulso = await prisma.impulso.findUnique({
       where: {
@@ -39,12 +43,26 @@ export async function atualizarimpulso(req: Request, res: Response) {
       },
     });
 
-    if (!impulso) return res.status(404).json("Impulso não econtrado.");
+    if (!impulso) {
+      res.status(404).json("Impulso não econtrado.");
+      return;
+    }
 
-    res.status(200).json(impulso);
+    await prisma.impulso.update({
+      where: {
+        id: impulsoId,
+      },
+      data: {
+        valor: novoValor,
+      },
+    });
+
+    res.status(200).json({ mensagem: "Valor do impulso atualizado com sucesso." });
   } catch (error) {
+    console.error(error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Dados inválidos" });
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
     }
     res.status(500).json({ error: "Erro interno no servidor." });
   }

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { stripe } from "src/config/stripe";
+import stripe from "src/config/stripe";
 import apagarArquivos from "src/utils/apagarArquivos";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
@@ -16,8 +16,7 @@ export async function criarImpulso(req: Request, res: Response) {
       dataHoraFim: z.iso.datetime(),
     });
 
-    const { eventoId, impulsoId, dataHoraInicio, dataHoraFim } =
-      impulsoSchema.parse(req.body);
+    const { eventoId, impulsoId, dataHoraInicio, dataHoraFim } = impulsoSchema.parse(req.body);
 
     const evento = await prisma.evento.findFirst({
       where: {
@@ -30,7 +29,8 @@ export async function criarImpulso(req: Request, res: Response) {
     });
 
     if (!evento) {
-      return res.status(404).json({ error: "Evento não econtrado." });
+      res.status(404).json({ error: "Evento não econtrado." });
+      return;
     }
 
     const impulsosConflitantes = await prisma.impulsoEvento.findMany({
@@ -45,10 +45,11 @@ export async function criarImpulso(req: Request, res: Response) {
     });
 
     if (impulsosConflitantes.length > 0) {
-      return res.status(400).json({
+      res.status(400).json({
         error:
           "O periodo do impulso conflita com outro impulso existente ou em aguardo de pagamento.",
       });
+      return;
     }
 
     const inicio = new Date(dataHoraInicio);
@@ -56,33 +57,36 @@ export async function criarImpulso(req: Request, res: Response) {
 
     const dataAtual = new Date();
 
-    const dataInicioEvento = new Date(evento.data_hora_inicio);
     const dataFimEvento = new Date(evento.data_hora_fim);
 
     if (inicio < dataAtual) {
-      return res.status(400).json({
+      res.status(400).json({
         Error: "A data e hora de inicio não pode ser inferior a data atual",
       });
+      return;
     }
 
     if (inicio > dataFimEvento) {
-      return res.status(400).json({
+      res.status(400).json({
         error:
           "A data e hora de incio do impulso não pode ser maior que a data e hora final do evento.",
       });
+      return;
     }
 
     if (fim > dataFimEvento) {
-      return res.status(400).json({
+      res.status(400).json({
         error:
           "A data e hora de fim do impulso não pode ser maior que a data final do evento.",
       });
+      return;
     }
 
     if (fim <= inicio) {
-      return res.status(400).json({
+      res.status(400).json({
         error: "A data e hora final deve ser maior que a data inicial.",
       });
+      return;
     }
 
     const diferencaMs = fim.getTime() - inicio.getTime();
@@ -99,7 +103,8 @@ export async function criarImpulso(req: Request, res: Response) {
     });
 
     if (!impulso) {
-      return res.status(404).json({ error: "Impulso não encontrado." });
+      res.status(404).json({ error: "Impulso não encontrado." });
+      return;
     }
 
     const novoImpulso = await prisma.impulsoEvento.create({
@@ -138,9 +143,10 @@ export async function criarImpulso(req: Request, res: Response) {
     res.status(200).json({ url: session.url });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res
+      res
         .status(400)
         .json({ error: "Dados inválidos", messagem: z.treeifyError(error) });
+      return;
     }
     res.status(500).json({ error: "Erro interno no servidor." });
   }

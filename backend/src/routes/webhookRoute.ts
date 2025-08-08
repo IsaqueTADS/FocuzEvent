@@ -1,5 +1,5 @@
 import express from "express";
-import { webhookStripe } from "src/controllers/webhookController";
+import webhookStripe from "src/controllers/webhookController";
 
 const webhookRouter = express.Router();
 

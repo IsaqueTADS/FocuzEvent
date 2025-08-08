@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
+import { Request, Response } from "express";
+import { AuthRequest } from "src/utils/type.js";
 import z from "zod";
 
 import apagarArquivos from "../utils/apagarArquivos.js";
 import prisma from "../utils/prisma.js";
-import { Request, Response } from "express";
-import { AuthRequest } from "src/utils/type.js";
 
 export async function atualizarAvatar(req: Request, res: Response) {
   try {
@@ -63,7 +63,8 @@ export async function buscarTodosPerfis(req: Request, res: Response) {
     });
 
     if (!usuarios.length) {
-      return res.status(401).json({ error: "Nenhum usuário encontrado." });
+      res.status(401).json({ error: "Nenhum usuário encontrado." });
+      return;
     }
     res.status(200).json(usuarios);
   } catch (error) {
@@ -194,7 +195,7 @@ export async function deletarUsuario(req: Request, res: Response) {
       return;
     }
 
-    const eventos = await prisma.evento.updateMany({
+    await prisma.evento.updateMany({
       where: {
         usuario_id: usuarioId,
       },

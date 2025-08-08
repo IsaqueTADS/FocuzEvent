@@ -1,5 +1,8 @@
 import express from "express";
-import { buscarCidadesPorEstados, buscarTodasCidades } from "src/controllers/cidadesControllers";
+import {
+  buscarCidadesPorEstados,
+  buscarTodasCidades,
+} from "src/controllers/cidadesControllers";
 
 const cidadesRouter = express.Router();
 

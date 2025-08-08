@@ -7,3 +7,11 @@ export const avatarLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+export const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  message: { error: "Espere 15 minutos antes de tentar novamente" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

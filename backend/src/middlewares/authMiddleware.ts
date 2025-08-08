@@ -1,10 +1,10 @@
 import "dotenv/config";
 
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
-import { AuthRequest } from "src/utils/type";
 import { env } from "src/env/index";
 import prisma from "src/utils/prisma";
+import { AuthRequest } from "src/utils/type";
 
 const autenticacao = async (
   req: Request,
@@ -20,7 +20,7 @@ const autenticacao = async (
   try {
     const decodificado = jwt.verify(token, env.JWT_SECRET);
     if (typeof decodificado === "object" && "usuarioId" in decodificado) {
-      const usuarioId = decodificado.usuarioId;
+      const { usuarioId } = decodificado;
 
       (req as AuthRequest).usuarioId = usuarioId;
 
@@ -29,15 +29,18 @@ const autenticacao = async (
       });
 
       if (!usuario) {
-        return res.status(404).json({ error: "Usuario não encontrado" });
+        res.status(404).json({ error: "Usuario não encontrado" });
+        return;
       }
 
-      if(usuario.ativo === false) {
-        return res.status(404).json({ error: "Usuario não encontrado" });
+      if (usuario.ativo === false) {
+        res.status(404).json({ error: "Usuario não encontrado" });
+        return;
       }
       next();
-    } else {  
-      return res.status(401).json({ error: "Token inválido" });
+    } else {
+      res.status(401).json({ error: "Token inválido" });
+      return;
     }
   } catch {
     res.status(401).json({ error: "Token inválido" });

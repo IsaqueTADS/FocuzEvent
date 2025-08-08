@@ -1,4 +1,4 @@
-import { Response, Request, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
 
@@ -21,13 +21,14 @@ const verificarAdmin = async (
     });
 
     if (!usuario || usuario.role !== "ADMIN") {
-      return res.status(403).json({
+      res.status(403).json({
         error: "Acesso negado: usuário não tem papel de administrador",
       });
+      return;
     }
     next();
   } catch (error) {
-    return res.status(500).json({ error: "Erro interno no servidor" });
+    res.status(500).json({ error: "Erro interno no servidor" });
   }
 };
 

@@ -1,4 +1,4 @@
-import { Response, Request, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
 
@@ -13,14 +13,15 @@ const verificarPagamentoImpulso = async (
     const dataAtual = new Date();
 
     if (!impulsoId) {
-      return res.status(400).json({ erro: "ID do impulso não informado." });
+      res.status(400).json({ erro: "ID do impulso não informado." });
+      return;
     }
 
     const pago = await prisma.impulsoEvento.findFirst({
       where: {
         id: impulsoId,
-        data_hora_fim : {
-          gte: dataAtual
+        data_hora_fim: {
+          gte: dataAtual,
         },
         evento: {
           usuario_id: usuarioId,
@@ -30,14 +31,15 @@ const verificarPagamentoImpulso = async (
     });
 
     if (!pago) {
-      return res
+      res
         .status(403)
         .json({ erro: "Impulso ainda não foi pago ou foi recusado." });
+      return;
     }
 
     next();
   } catch (error) {
-    return res.status(500).json({ error: "Erro interno no servidor" });
+    res.status(500).json({ error: "Erro interno no servidor" });
   }
 };
 

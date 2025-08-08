@@ -11,6 +11,6 @@ const authRouter = express.Router();
 
 authRouter.post("/register", criarUsuario);
 authRouter.post("/login", logarUsuario);
-authRouter.get("/token/validar", autenticacao , verificarToken);
+authRouter.get("/token/validar", autenticacao, verificarToken);
 
 export default authRouter;

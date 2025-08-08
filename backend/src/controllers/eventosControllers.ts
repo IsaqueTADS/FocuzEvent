@@ -1,7 +1,8 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
 import { z } from "zod";
+
 import apagarArquivos from "../utils/apagarArquivos";
 
 export async function criarEvento(req: Request, res: Response) {
@@ -56,9 +57,10 @@ export async function criarEvento(req: Request, res: Response) {
       },
     });
 
-    if (!cidade)
-      return res.status(404).json({ error: "Essa cidade não existe" });
-
+    if (!cidade) {
+      res.status(404).json({ error: "Essa cidade não existe" });
+      return;
+    }
     await prisma.evento.create({
       data: {
         titulo,
@@ -81,7 +83,8 @@ export async function criarEvento(req: Request, res: Response) {
     res.status(201).send();
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Dados inválidos" });
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -115,7 +118,8 @@ export async function buscarTodosEventos(req: Request, res: Response) {
       },
     });
     if (eventos.length === 0) {
-      return res.status(404).json({ error: "Nenhum evento econtrado" });
+      res.status(404).json({ error: "Nenhum evento econtrado" });
+      return;
     }
 
     res.status(200).json(eventos);
@@ -147,7 +151,8 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
     });
 
     if (eventosUsuario.length === 0) {
-      return res.status(404).json({ error: "Nenhum evento econtrado" });
+      res.status(404).json({ error: "Nenhum evento econtrado" });
+      return;
     }
 
     res.status(200).json(eventosUsuario);
@@ -169,7 +174,11 @@ export async function buscarEventosCidade(req: Request, res: Response) {
       },
     });
 
-    if (!cidade) return res.status(404).json({ error: "Cidade não econtrada" });
+    return;
+    if (!cidade) {
+      res.status(404).json({ error: "Cidade não econtrada" });
+      return;
+    }
 
     const eventosCidade = await prisma.evento.findMany({
       where: {
@@ -196,13 +205,16 @@ export async function buscarEventosCidade(req: Request, res: Response) {
       },
     });
 
-    if (eventosCidade.length === 0)
-      return res.status(404).json({ error: "Nenhum evento econtrado" });
+    if (eventosCidade.length === 0) {
+      res.status(404).json({ error: "Nenhum evento econtrado" });
+      return;
+    }
 
     res.status(200).json(eventosCidade);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Dados inválidos" });
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -242,11 +254,13 @@ export async function buscarEvento(req: Request, res: Response) {
     });
 
     if (!evento) {
-      return res.status(404).json({ error: "Nenhum evento econtrado" });
+      res.status(404).json({ error: "Nenhum evento econtrado" });
+      return;
     }
 
     if (evento.ativo === false) {
-      return res.status(404).json({ error: "Nenhum evento econtrado" });
+      res.status(404).json({ error: "Nenhum evento econtrado" });
+      return;
     }
 
     await prisma.evento.update({
@@ -281,8 +295,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         .optional()
         .default(5),
     });
-    const { cidadeId, categoriaEventoId, usuarioId, pagina, total } =
-      filtroScheme.parse(req.query);
+    const { cidadeId, categoriaEventoId, usuarioId, pagina, total } = filtroScheme.parse(req.query);
 
     const skip = (pagina - 1) * total;
     const take = total;
@@ -325,13 +338,16 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       },
     });
 
-    if (eventos.length === 0)
-      return res.status(404).json({ error: "Nenhum evento encontrado." });
+    if (eventos.length === 0) {
+      res.status(404).json({ error: "Nenhum evento encontrado." });
+      return;
+    }
 
     res.status(200).json(eventos);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: "Dados inválidos" });
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -392,11 +408,13 @@ export async function atualiarEvento(req: Request, res: Response) {
     });
 
     if (!evento) {
-      return res.status(404).json({ error: "Nenhum evento econtrado" });
+      res.status(404).json({ error: "Nenhum evento econtrado" });
+      return;
     }
 
     if (evento.ativo === false) {
-      return res.status(404).json({ error: "Nenhum evento econtrado" });
+      res.status(404).json({ error: "Nenhum evento econtrado" });
+      return;
     }
 
     const bannerEvento = req.file;
@@ -445,9 +463,10 @@ export async function atualiarEvento(req: Request, res: Response) {
     res.status(200).json({ messagem: "Evento atualizado com sucesso" });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res
+      res
         .status(400)
         .json({ error: "Dados inválidos", messagem: z.treeifyError(error) });
+      return;
     }
     console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
@@ -498,9 +517,8 @@ export async function buscarEventosImpulsionado(req: Request, res: Response) {
     });
 
     if (impulsosEventos.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "Nenhum evento impulsionado econtrado." });
+      res.status(404).json({ error: "Nenhum evento impulsionado econtrado." });
+      return;
     }
 
     res.status(200).json(impulsosEventos);
@@ -553,7 +571,8 @@ export async function buscarEventoImpulsionadoUnico(
     });
 
     if (!evento) {
-      return res.status(404).json({ error: "Nenhum evento econtrado." });
+      res.status(404).json({ error: "Nenhum evento econtrado." });
+      return;
     }
 
     await prisma.impulsoEvento.update({

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "src/utils/prisma";
 
-export async function buscarCategorias(req: Request, res: Response) {
+export default async function buscarCategorias(req: Request, res: Response) {
   try {
     const categorias = await prisma.categoriaEvento.findMany({
       select: {
@@ -11,7 +11,8 @@ export async function buscarCategorias(req: Request, res: Response) {
     });
 
     if (categorias.length === 0) {
-      return res.status(404).json({ error: "Nenhuma categoria econtrada" });
+      res.status(404).json({ error: "Nenhuma categoria econtrada" });
+      return;
     }
     res.status(200).json(categorias);
   } catch {

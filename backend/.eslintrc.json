@@ -18,8 +18,11 @@
     "@typescript-eslint"
   ],
   "rules": {
+    "object-curly-newline": "off",
+    "comma-dangle": "off",
     "no-console": "off",
     "camelcase": "off",
+    "newline-per-chained-call": "off",
     "no-underscore-dangle": [
       "error",
       {
@@ -70,6 +73,6 @@
           "src/"
         ]
       }
-    },
+    }
   }
 }

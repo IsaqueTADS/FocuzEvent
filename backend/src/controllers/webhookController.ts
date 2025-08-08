@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { stripe } from "src/config/stripe";
+import stripe from "src/config/stripe";
 import { env } from "src/env";
 import prisma from "src/utils/prisma";
 import Stripe from "stripe";
 
-export const webhookStripe = async (req: Request, res: Response) => {
+const webhookStripe = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"];
   let eventoStripe;
 
@@ -29,11 +29,6 @@ export const webhookStripe = async (req: Request, res: Response) => {
 
     const paymentIntentId = session.payment_intent as string;
 
-    if (!paymentIntentId) {
-      console.warn("Nenhum payment_intent encontrado na sessão.");
-      return;
-    }
-
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
     const metodo = paymentIntent.payment_method_types[0];
@@ -52,7 +47,7 @@ export const webhookStripe = async (req: Request, res: Response) => {
       },
     });
 
-    const evento = await prisma.evento.update({
+    await prisma.evento.update({
       where: {
         id: impulsoEvento?.evento_id,
       },
@@ -76,5 +71,6 @@ export const webhookStripe = async (req: Request, res: Response) => {
     console.log(`Pagamento expirado para impulso ${impulsoEventoId}`);
   }
 
-  res.status(200).send();
+  return res.status(200).send();
 };
+export default webhookStripe;

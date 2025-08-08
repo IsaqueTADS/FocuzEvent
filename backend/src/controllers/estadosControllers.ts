@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "src/utils/prisma";
 
-export async function buscarTodosEstados(req: Request, res: Response) {
+export default async function buscarTodosEstados(req: Request, res: Response) {
   try {
     const estados = await prisma.estado.findMany({
       select: {
