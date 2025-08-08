@@ -1,5 +1,4 @@
 import express from "express";
-import { atualizarimpulso } from "src/controllers/adminControllers";
 import {
   atualizarBannerImpulso,
   buscarEventosImpulsionadoUsuario,

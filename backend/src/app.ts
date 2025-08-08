@@ -10,6 +10,7 @@ import cidadesRouter from "./routes/cidadesRoutes";
 import estadosRouter from "./routes/estadosRoutes";
 import eventosRouter from "./routes/eventosRoutes";
 import impulsosEventosRouter from "./routes/impulsosEventosRoutes";
+import planoImpulsoRouter from "./routes/planoImpulsoRoutes";
 import usuarioRouter from "./routes/usuariosRoutes";
 import webhookRouter from "./routes/webhookRoute";
 
@@ -38,5 +39,6 @@ app.use("/estados", estadosRouter);
 app.use("/cidades", cidadesRouter);
 app.use("/categorias", categoriaRouter);
 app.use("/impulsos", impulsosEventosRouter);
+app.use("/impulso", planoImpulsoRouter);
 
 export default app;
