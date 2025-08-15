@@ -80,7 +80,7 @@ export async function criarEvento(req: Request, res: Response) {
       },
     });
 
-    res.status(201).send();
+    res.status(201).json({ message: "Evento criado com sucesso" });
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ error: "Dados inválidos" });
@@ -140,7 +140,13 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
             estado: { select: { id: true, uf: true, nome: true } },
           },
         },
-        usuario: { select: { id: true, nome: true } },
+        usuario: {
+          select: {
+            id: true,
+            nome: true,
+            foto_url: true,
+          },
+        },
         categoriaEvento: {
           select: {
             id: true,
@@ -174,7 +180,6 @@ export async function buscarEventosCidade(req: Request, res: Response) {
       },
     });
 
-    return;
     if (!cidade) {
       res.status(404).json({ error: "Cidade não econtrada" });
       return;
@@ -195,7 +200,13 @@ export async function buscarEventosCidade(req: Request, res: Response) {
             estado: { select: { id: true, uf: true, nome: true } },
           },
         },
-        usuario: { select: { nome: true } },
+        usuario: {
+          select: {
+            id: true,
+            nome: true,
+            foto_url: true,
+          },
+        },
         categoriaEvento: {
           select: {
             id: true,
@@ -289,17 +300,21 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       pagina: z
         .preprocess((val) => Number(val), z.number().int().min(1))
         .optional()
-        .default(1),
+        .optional(),
       total: z
         .preprocess((val) => Number(val), z.number().int())
         .optional()
-        .default(5),
+        .optional(),
     });
     const { cidadeId, categoriaEventoId, usuarioId, pagina, total } =
       filtroSchema.parse(req.query);
 
-    const skip = (pagina - 1) * total;
-    const take = total;
+    const paginacao: { skip?: number; take?: number } = {};
+
+    if (pagina && total) {
+      paginacao.skip = (pagina - 1) * total;
+      paginacao.take = total;
+    }
 
     const eventos = await prisma.evento.findMany({
       where: {
@@ -312,10 +327,9 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
           role: "USUARIO",
         },
       },
-      skip,
-      take,
+      ...paginacao,
       orderBy: {
-        criado_em: "asc",
+        criado_em: "desc",
       },
 
       include: {
@@ -327,7 +341,9 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         },
         usuario: {
           select: {
+            id: true,
             nome: true,
+            foto_url: true,
           },
         },
         categoriaEvento: {
@@ -488,18 +504,19 @@ export async function buscarEventosImpulsionadoFiltro(
       pagina: z
         .preprocess((val) => Number(val), z.number().int().min(1))
         .optional()
-        .default(1),
-      total: z
-        .preprocess((val) => Number(val), z.number().int())
-        .optional()
-        .default(5),
+        .optional(),
+      total: z.preprocess((val) => Number(val), z.number().int()).optional(),
     });
 
     const { cidadeId, categoriaEventoId, usuarioId, pagina, total } =
       filtroSchema.parse(req.query);
 
-    const skip = (pagina - 1) * total;
-    const take = total;
+    const paginacao: { skip?: number; take?: number } = {};
+
+    if (pagina && total) {
+      paginacao.skip = (pagina - 1) * total;
+      paginacao.take = total;
+    }
 
     const impulsosEventos = await prisma.impulsoEvento.findMany({
       where: {
@@ -531,7 +548,9 @@ export async function buscarEventosImpulsionadoFiltro(
             },
             usuario: {
               select: {
+                id: true,
                 nome: true,
+                foto_url: true,
               },
             },
             categoriaEvento: {
@@ -543,8 +562,7 @@ export async function buscarEventosImpulsionadoFiltro(
           },
         },
       },
-      skip,
-      take,
+      ...paginacao,
       orderBy: {
         criado_em: "asc",
       },
@@ -594,7 +612,9 @@ export async function buscarEventoImpulsionadoUnico(
             },
             usuario: {
               select: {
+                id: true,
                 nome: true,
+                foto_url: true,
               },
             },
             categoriaEvento: {

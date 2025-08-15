@@ -61,7 +61,7 @@ export async function logarUsuario(req: Request, res: Response) {
     const validacao = authSchema.safeParse(req.body);
 
     if (validacao.success === false) {
-      res.status(400).json({ errors: "Dados inválidos" });
+      res.status(400).json({ error: "Email ou senha inválidosJ" });
       return;
     }
 
