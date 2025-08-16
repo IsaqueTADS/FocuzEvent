@@ -24,7 +24,7 @@ const armazenamneto = multer.diskStorage({
 
 const uploadBannerImpulso = multer({
   storage: armazenamneto,
-  limits: { fileSize: 20 * 1024 * 1024 },
+  limits: { fileSize: 60 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const tiposPermitidos = ["image/jpeg", "image/png", "image/jpg"];
     if (tiposPermitidos.includes(file.mimetype)) {
