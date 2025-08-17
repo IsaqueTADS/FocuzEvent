@@ -49,6 +49,27 @@ export async function criarEvento(req: Request, res: Response) {
       emailContato,
     } = eventoSchema.parse(req.body);
 
+    const dataAtual = new Date();
+    const dataHoraInicioDate = new Date(dataHoraInicio);
+    const dataHoraFimDate = new Date(dataHoraFim);
+
+    if (dataHoraInicioDate < dataAtual) {
+      res
+        .status(400)
+        .json({ error: "A data de início não pode ser no passado" });
+      return;
+    }
+    if (!bannerEvento) {
+      res.status(400).json({ error: "Banner do evento é obrigatório" });
+      return;
+    }
+    if (dataHoraInicioDate.getTime() >= dataHoraFimDate.getTime()) {
+      res.status(400).json({
+        error: "A data de início deve ser anterior à data de fim",
+      });
+      return;
+    }
+
     const urlBannerEvento = `http://localhost:3000/uploads/eventos/${bannerEvento?.filename}`;
 
     const cidade = await prisma.cidade.findUnique({
@@ -153,6 +174,9 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
             titulo: true,
           },
         },
+      },
+      orderBy: {
+        criado_em: "desc",
       },
     });
 
