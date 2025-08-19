@@ -9,6 +9,7 @@ import {
   buscarEventosUsuario,
   buscarTodosEventos,
   criarEvento,
+  deletarEvento,
 } from "src/controllers/eventosControllers";
 import autenticacao from "src/middlewares/authMiddleware";
 import uploadBannerEventos from "src/middlewares/uploadBannerEvento";
@@ -36,5 +37,7 @@ eventosRouter.put(
   uploadBannerEventos.single("atualizar_banner_evento"),
   atualiarEvento
 );
+
+eventosRouter.delete("/deletar/:eventoId", autenticacao, deletarEvento);
 
 export default eventosRouter;

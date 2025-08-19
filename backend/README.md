@@ -1,6 +1,6 @@
   # App
 
-  Focu web app.
+  Focuz web app.
 
   ## Rfs (Requisitos funcionais)
 

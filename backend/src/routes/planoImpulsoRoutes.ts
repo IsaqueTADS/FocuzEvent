@@ -4,6 +4,6 @@ import autenticacao from "src/middlewares/authMiddleware";
 
 const planoImpulsoRouter = express.Router();
 
-planoImpulsoRouter.get("/plano", autenticacao, buscarPlanoImpulso);
+planoImpulsoRouter.get("/plano", buscarPlanoImpulso);
 
 export default planoImpulsoRouter;

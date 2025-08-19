@@ -276,7 +276,9 @@ export async function buscarEvento(req: Request, res: Response) {
         },
         usuario: {
           select: {
+            id: true,
             nome: true,
+            foto_url: true,
           },
         },
         categoriaEvento: {
@@ -350,6 +352,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         usuario: {
           role: "USUARIO",
         },
+        ativo: true,
       },
       ...paginacao,
       orderBy: {
@@ -447,6 +450,26 @@ export async function atualiarEvento(req: Request, res: Response) {
         usuario_id: usuarioId,
       },
     });
+
+    if (dataHoraInicio) {
+      const dataHoraInicioDate = new Date(dataHoraInicio);
+      if (dataHoraInicioDate < new Date()) {
+        res
+          .status(400)
+          .json({ error: "A data de início não pode ser no passado" });
+        return;
+      }
+
+      if (dataHoraFim) {
+        const dataHoraFimDate = new Date(dataHoraFim);
+        if (dataHoraInicioDate.getTime() >= dataHoraFimDate.getTime()) {
+          res.status(400).json({
+            error: "A data de início deve ser anterior à data de fim",
+          });
+          return;
+        }
+      }
+    }
 
     if (!evento) {
       res.status(404).json({ error: "Nenhum evento econtrado" });
@@ -669,6 +692,39 @@ export async function buscarEventoImpulsionadoUnico(
     });
 
     res.status(200).json(evento);
+  } catch {
+    res.status(500).json({ error: "Erro interno no servidor." });
+  }
+}
+
+export async function deletarEvento(req: Request, res: Response) {
+  try {
+    const { eventoId } = req.params;
+    const { usuarioId } = req as AuthRequest;
+
+    const evento = await prisma.evento.findFirst({
+      where: {
+        id: eventoId,
+        usuario_id: usuarioId,
+        ativo: true,
+      },
+    });
+
+    if (!evento) {
+      res.status(404).json({ error: "Nenhum evento econtrado" });
+      return;
+    }
+
+    await prisma.evento.update({
+      where: {
+        id: eventoId,
+      },
+      data: {
+        ativo: false,
+      },
+    });
+
+    res.status(200).json({ message: "Evento deletado com sucesso" });
   } catch {
     res.status(500).json({ error: "Erro interno no servidor." });
   }

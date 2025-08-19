@@ -120,7 +120,7 @@ export async function criarImpulso(req: Request, res: Response) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      success_url: `http://localhost:5173/sucesso?impulso_id=${novoImpulso.id}`,
+      success_url: `http://localhost:5173/perfil/evento/impulso/${novoImpulso.id}`,
       cancel_url: `http://localhost:5173/erro?impulso_id=${novoImpulso.id}`,
       line_items: [
         {
