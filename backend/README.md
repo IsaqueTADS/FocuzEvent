@@ -39,6 +39,14 @@ O **FocuzEvent** é uma plataforma de gerenciamento de eventos que permite aos u
 - Banner personalizado para eventos impulsionados
 - Status de pagamento (AGUARDANDO, PAGO, RECUSADO)
 
+#### Fluxo de Pagamento
+
+1. **Criação do Impulso**: Usuário seleciona plano e período
+2. **Checkout Stripe**: Sistema redireciona para página de pagamento do Stripe
+3. **Processamento**: Stripe processa o pagamento
+4. **Webhook**: Stripe envia confirmação via webhook
+5. **Atualização**: Sistema atualiza status do impulso e evento
+
 ### 🔐 Administração
 
 - Painel administrativo
@@ -163,6 +171,126 @@ STRIPE_WEBHOOK_SECRET="whsec_sua-chave-webhook-stripe"
 PORT=3000
 ```
 
+## 💳 Configuração do Stripe
+
+O projeto utiliza o Stripe para processamento de pagamentos do sistema de impulsão de eventos. Siga os passos abaixo para configurar corretamente:
+
+### 1. Criar conta no Stripe
+
+1. Acesse [https://stripe.com](https://stripe.com)
+2. Clique em "Sign up" para criar uma conta
+3. Complete o processo de registro
+4. Acesse o Dashboard do Stripe
+
+### 2. Obter as chaves da API
+
+1. No Dashboard do Stripe, vá em **Developers** > **API keys**
+2. Copie a **Secret key** (começa com `sk_test_` para modo de teste)
+3. Adicione esta chave no arquivo `.env` como `STRIPE_SECRET_KEY`
+
+### 3. Instalar o Stripe CLI
+
+#### Windows (usando winget)
+
+```bash
+winget install Stripe.StripeCLI
+```
+
+#### macOS (usando Homebrew)
+
+```bash
+brew install stripe/stripe-cli/stripe
+```
+
+#### Linux
+
+```bash
+# Baixe o binário diretamente do GitHub
+curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg
+echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list.d/stripe.list
+sudo apt update
+sudo apt install stripe
+```
+
+### 4. Configurar o Stripe CLI
+
+1. Faça login no Stripe CLI:
+
+```bash
+stripe login
+```
+
+2. Inicie o listener de webhooks (em um terminal separado):
+
+```bash
+stripe listen --forward-to localhost:3000/webhook/stripe
+```
+
+3. **IMPORTANTE**: Copie o webhook signing secret que aparece no terminal (começa com `whsec_`)
+4. Adicione este secret no arquivo `.env` como `STRIPE_WEBHOOK_SECRET`
+
+### 5. Testar a configuração
+
+1. Inicie o servidor:
+
+```bash
+npm run dev
+```
+
+2. Em outro terminal, mantenha o listener do Stripe rodando:
+
+```bash
+stripe listen --forward-to localhost:3000/webhook/stripe
+```
+
+3. Teste um pagamento usando os cartões de teste do Stripe:
+   - **Sucesso**: `4242 4242 4242 4242`
+   - **Falha**: `4000 0000 0000 0002`
+   - **Requer autenticação**: `4000 0025 0000 3155`
+
+### 6. Cartões de teste do Stripe
+
+Para testar diferentes cenários de pagamento:
+
+| Número do Cartão      | Descrição                   |
+| --------------------- | --------------------------- |
+| `4242 4242 4242 4242` | Visa - Sucesso              |
+| `4000 0000 0000 0002` | Visa - Cartão recusado      |
+| `4000 0000 0000 9995` | Visa - Fundos insuficientes |
+| `4000 0025 0000 3155` | Visa - Requer autenticação  |
+| `5555 5555 5555 4444` | Mastercard - Sucesso        |
+
+**Dados para todos os cartões de teste:**
+
+- **CVV**: Qualquer 3 dígitos (ex: 123)
+- **Data de expiração**: Qualquer data futura (ex: 12/25)
+- **CEP**: Qualquer CEP válido (ex: 12345-678)
+
+### 7. Monitoramento de webhooks
+
+O Stripe CLI fornece logs detalhados dos webhooks recebidos. Você pode:
+
+- Ver todos os eventos em tempo real
+- Reenviar eventos específicos
+- Verificar se os webhooks estão sendo processados corretamente
+
+### 8. Produção
+
+Para usar em produção:
+
+1. Ative sua conta Stripe para receber pagamentos reais
+2. Substitua as chaves de teste pelas chaves de produção
+3. Configure webhooks reais no Dashboard do Stripe apontando para sua URL de produção
+4. Use cartões reais para testes finais
+
+### 9. Troubleshooting
+
+**Problemas comuns:**
+
+- **Webhook não recebido**: Verifique se o listener está rodando e se a URL está correta
+- **Erro de assinatura**: Confirme se o `STRIPE_WEBHOOK_SECRET` está correto
+- **Pagamento não processado**: Verifique os logs do servidor e do Stripe CLI
+
 ### 4. Configure o banco de dados
 
 #### Opção 1: Usando Docker Compose
@@ -269,9 +397,13 @@ npm start
 
 ### Impulsão
 
-- `POST /impulsos/criar` - Criar impulso
+- `POST /impulsos/criar` - Criar impulso (redireciona para Stripe Checkout)
 - `GET /impulsos/usuario` - Impulsos do usuário
 - `PUT /impulsos/banner/:impulsoId` - Atualizar banner
+
+### Webhooks
+
+- `POST /webhook/stripe` - Webhook do Stripe para processar pagamentos
 
 ### Localização
 
