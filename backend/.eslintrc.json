@@ -18,6 +18,7 @@
     "@typescript-eslint"
   ],
   "rules": {
+    "linebreak-style": "off",
     "operator-linebreak": "off",
     "object-curly-newline": "off",
     "comma-dangle": "off",

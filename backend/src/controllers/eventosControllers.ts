@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
@@ -331,9 +332,16 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         .preprocess((val) => Number(val), z.number().int())
         .optional()
         .optional(),
+      pesquisaTitulo: z.string().optional(),
     });
-    const { cidadeId, categoriaEventoId, usuarioId, pagina, total } =
-      filtroSchema.parse(req.query);
+    const {
+      cidadeId,
+      categoriaEventoId,
+      usuarioId,
+      pagina,
+      total,
+      pesquisaTitulo,
+    } = filtroSchema.parse(req.query);
 
     const paginacao: { skip?: number; take?: number } = {};
 
@@ -342,13 +350,21 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       paginacao.take = total;
     }
 
+    const filtroEventos: Prisma.EventoWhereInput = {};
+
+    if (usuarioId) filtroEventos.usuario_id = usuarioId;
+    if (cidadeId) filtroEventos.cidade_id = cidadeId;
+    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (pesquisaTitulo) {
+      filtroEventos.titulo = {
+        contains: pesquisaTitulo,
+        mode: "insensitive",
+      };
+    }
+
     const eventos = await prisma.evento.findMany({
       where: {
-        ...(usuarioId ? { usuario_id: usuarioId } : {}),
-        ...(cidadeId ? { cidade_id: cidadeId } : {}),
-        ...(categoriaEventoId
-          ? { categoria_evento_id: categoriaEventoId }
-          : {}),
+        ...filtroEventos,
         usuario: {
           role: "USUARIO",
         },
@@ -553,10 +569,17 @@ export async function buscarEventosImpulsionadoFiltro(
         .optional()
         .optional(),
       total: z.preprocess((val) => Number(val), z.number().int()).optional(),
+      pesquisaTitulo: z.string().optional(),
     });
 
-    const { cidadeId, categoriaEventoId, usuarioId, pagina, total } =
-      filtroSchema.parse(req.query);
+    const {
+      cidadeId,
+      categoriaEventoId,
+      usuarioId,
+      pagina,
+      total,
+      pesquisaTitulo,
+    } = filtroSchema.parse(req.query);
 
     const paginacao: { skip?: number; take?: number } = {};
 
@@ -565,17 +588,25 @@ export async function buscarEventosImpulsionadoFiltro(
       paginacao.take = total;
     }
 
+    const filtroEventos: Prisma.EventoWhereInput = {};
+
+    if (usuarioId) filtroEventos.usuario_id = usuarioId;
+    if (cidadeId) filtroEventos.cidade_id = cidadeId;
+    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (pesquisaTitulo) {
+      filtroEventos.titulo = {
+        contains: pesquisaTitulo,
+        mode: "insensitive",
+      };
+    }
+
     const impulsosEventos = await prisma.impulsoEvento.findMany({
       where: {
         status_pagamento: "PAGO",
         data_hora_fim: { gte: dataAtual },
         evento: {
           ativo: true,
-          ...(usuarioId ? { usuario_id: usuarioId } : {}),
-          ...(cidadeId ? { cidade_id: cidadeId } : {}),
-          ...(categoriaEventoId
-            ? { categoria_evento_id: categoriaEventoId }
-            : {}),
+          ...filtroEventos,
           usuario: {
             role: "USUARIO",
           },
