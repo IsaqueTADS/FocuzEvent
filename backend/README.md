@@ -379,37 +379,214 @@ npm start
 
 ## 🔌 Principais Endpoints
 
-### Autenticação
+Abaixo está a lista das rotas disponíveis na API com o método HTTP, path, se requer autenticação, e os parâmetros esperados (path params, query params, request body e campos de upload quando aplicável).
 
-- `POST /auth/criar` - Criar usuário
-- `POST /auth/logar` - Fazer login
-- `GET /auth/verificar` - Verificar token
+Observação: o prefixo base das rotas segue a configuração em `src/app.ts` (ex.: `/auth`, `/eventos`, `/usuarios`, `/impulsos`, `/webhook`, `/admin`, `/estados`, `/cidades`, `/categorias`, `/impulso`).
 
-### Eventos
+Autenticação
 
-- `POST /eventos/criar` - Criar evento
-- `GET /eventos` - Listar todos os eventos
-- `GET /eventos/usuario` - Eventos do usuário
-- `GET /eventos/cidade/:cidade_id` - Eventos por cidade
-- `GET /eventos/:eventoId` - Buscar evento específico
-- `PUT /eventos/:eventoId` - Atualizar evento
-- `DELETE /eventos/:eventoId` - Deletar evento
+- POST /auth/register
 
-### Impulsão
+  - Aut: não
+  - Body (JSON): { nome: string, email: string, senha: string }
+  - Descrição: cria um novo usuário.
 
-- `POST /impulsos/criar` - Criar impulso (redireciona para Stripe Checkout)
-- `GET /impulsos/usuario` - Impulsos do usuário
-- `PUT /impulsos/banner/:impulsoId` - Atualizar banner
+- POST /auth/login
 
-### Webhooks
+  - Aut: não
+  - Body (JSON): { email: string, senha: string }
+  - Resposta: { token: string }
+  - Descrição: autentica usuário e retorna JWT.
 
-- `POST /webhook/stripe` - Webhook do Stripe para processar pagamentos
+- GET /auth/token/validar
+  - Aut: sim (header Authorization: Bearer <token>)
+  - Descrição: valida o token e retorna { ok: true }.
 
-### Localização
+Usuários
 
-- `GET /estados` - Listar estados
-- `GET /cidades` - Listar cidades
-- `GET /cidades/estado/:estadoId` - Cidades por estado
+- GET /usuarios
+
+  - Aut: não
+  - Descrição: lista perfis públicos de usuários.
+
+- GET /usuarios/me
+
+  - Aut: sim
+  - Descrição: retorna dados do usuário autenticado.
+
+- PATCH /usuarios/me/avatar
+
+  - Aut: sim
+  - Tipo: multipart/form-data
+  - Field de arquivo: avatar
+  - Descrição: atualiza avatar do usuário.
+
+- PATCH /usuarios/me/nome
+
+  - Aut: sim
+  - Body (JSON): { nome: string }
+  - Descrição: atualiza nome do usuário.
+
+- PATCH /usuarios/me/senha
+
+  - Aut: sim
+  - Body (JSON): { senhaAtual: string, novaSenha: string }
+  - Descrição: altera senha do usuário.
+
+- DELETE /usuarios/me/delete
+  - Aut: sim
+  - Descrição: desativa (soft delete) o usuário autenticado.
+
+Eventos (base /eventos)
+
+- POST /eventos/criar
+
+  - Aut: sim
+  - Tipo: multipart/form-data
+  - Field de arquivo: banner_evento
+  - Body (form fields):
+    - titulo: string
+    - descricao: string
+    - dataHoraInicio: ISO datetime string
+    - dataHoraFim: ISO datetime string
+    - latitude: string (parseFloat)
+    - longitude: string (parseFloat)
+    - cidadeId: string
+    - categoriaEventoId: string
+    - isEventoPago: "true" | "false" (será convertido para boolean)
+    - telefoneContato?: string
+    - instagram?: string (começa com @)
+    - emailContato?: string
+  - Descrição: cria um evento para o usuário autenticado.
+
+- GET /eventos/todos
+
+  - Aut: não
+  - Descrição: lista todos eventos ativos (filtrados por usuário role = USUARIO).
+
+- GET /eventos/cidade
+
+  - Aut: não
+  - Query params: ?cidade_id=<cidadeId>
+  - Descrição: busca eventos pela cidade informada.
+
+- GET /eventos/me
+
+  - Aut: sim
+  - Descrição: retorna eventos do usuário autenticado.
+
+- GET /eventos
+
+  - Aut: não
+  - Query params (todos opcionais):
+    - cidadeId: string
+    - categoriaEventoId: string
+    - usuarioId: string
+    - pagina: number (página, começa em 1)
+    - total: number (itens por página)
+    - pesquisaTitulo: string (busca parcial no título)
+  - Descrição: busca eventos com filtros e paginação.
+
+- GET /eventos/:eventoId
+
+  - Aut: não
+  - Path params: eventoId
+  - Descrição: busca evento específico por id (incrementa contador de acessos).
+
+- GET /eventos/todos/impulsionados
+
+  - Aut: não
+  - Query params (mesmos que /eventos): cidadeId, categoriaEventoId, usuarioId, pagina, total, pesquisaTitulo
+  - Descrição: lista eventos impulsionados válidos (status PAGO e período vigente).
+
+- GET /eventos/unico/impulsionado/:impulsoEventoId
+
+  - Aut: não
+  - Path params: impulsoEventoId
+  - Descrição: retorna um impulso específico (evento impulsionado) e incrementa acessos.
+
+- PUT /eventos/atualizar/:eventoId
+
+  - Aut: sim
+  - Path params: eventoId
+  - Tipo: multipart/form-data (opcional file)
+  - Field de arquivo (opcional): atualizar_banner_evento
+  - Body (JSON or form fields) — TODOS opcionais (patch):
+    - titulo?: string
+    - descricao?: string
+    - dataHoraInicio?: ISO datetime
+    - dataHoraFim?: ISO datetime
+    - latitude?: string
+    - longitude?: string
+    - cidadeId?: string
+    - categoriaEventoId?: string
+    - isEventoPago?: "true" | "false"
+    - telefoneContato?: string
+    - instagram?: string
+    - emailContato?: string
+  - Descrição: atualiza campos do evento do usuário autenticado (soft validations aplicadas).
+
+- DELETE /eventos/deletar/:eventoId
+  - Aut: sim
+  - Path params: eventoId
+  - Descrição: faz soft delete (ativo = false) do evento do usuário autenticado.
+
+Impulsos de Evento (base /impulsos)
+
+- POST /impulsos/criar
+
+  - Aut: sim
+  - Body (JSON): { eventoId: string, impulsoId: string, dataHoraInicio: ISO datetime, dataHoraFim: ISO datetime }
+  - Descrição: cria um registro de impulso e inicia sessão do Stripe Checkout. Retorna { url } para checkout.
+
+- PATCH /impulsos/atualizar/banner/:impulsoId
+
+  - Aut: sim (e middleware que verifica pagamento/permissão)
+  - Path params: impulsoId
+  - Tipo: multipart/form-data
+  - Field de arquivo: banner_evento_impulso
+  - Descrição: atualiza o banner do impulso.
+
+- GET /impulsos/me
+  - Aut: sim
+  - Descrição: retorna impulsos relativos a eventos do usuário autenticado.
+
+Planos de Impulso (base /impulso)
+
+- GET /impulso/plano
+  - Aut: não
+  - Descrição: retorna os planos de impulso disponíveis.
+
+Admin (base /admin) — todas as rotas exigem autenticação e role ADMIN
+
+- GET /admin/me
+
+  - Aut: sim (Admin)
+  - Descrição: retorna informações do admin autenticado.
+
+- PUT /admin/impulso/:impulsoId
+  - Aut: sim (Admin)
+  - Path params: impulsoId
+  - Body: conforme necessidade do endpoint de atualização de impulso (ver controller)
+  - Descrição: endpoint administrativo para atualizar impulso.
+
+Webhook
+
+- POST /webhook/stripe
+  - Aut: não
+  - Tipo: raw body (content-type usado em route: express.raw({ type: "application/json" }))
+  - Cabeçalho esperado: stripe-signature (utilizado para validar evento)
+  - Descrição: endpoint para receber eventos do Stripe.
+
+Uploads e arquivos
+
+- Arquivos enviados ficam acessíveis em /uploads (ex.: http://localhost:3000/uploads/...)
+
+Notas finais
+
+- Para rotas autenticadas inclua o header: Authorization: Bearer <token>
+- Datas devem estar no formato ISO esperado pelos controllers (ex.: 2025-07-30T14:00:00.000Z)
+- Se precisar, posso gerar uma tabela mais detalhada com exemplos de requests (curl / JSON) para cada rota.
 
 ## 🔒 Segurança
 
