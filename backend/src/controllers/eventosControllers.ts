@@ -333,6 +333,11 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         .optional()
         .optional(),
       pesquisaTitulo: z.string().optional(),
+      isPago: z.preprocess((val) => {
+        if (val === "true") return true;
+        if (val === "false") return false;
+        return val;
+      }, z.boolean()).optional()
     });
     const {
       cidadeId,
@@ -341,6 +346,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       pagina,
       total,
       pesquisaTitulo,
+      isPago
     } = filtroSchema.parse(req.query);
 
     const paginacao: { skip?: number; take?: number } = {};
@@ -361,6 +367,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         mode: "insensitive",
       };
     }
+    if (isPago) filtroEventos.is_evento_pago = isPago;
 
     const eventos = await prisma.evento.findMany({
       where: {
@@ -397,11 +404,6 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         },
       },
     });
-
-    if (eventos.length === 0) {
-      res.status(404).json({ error: "Nenhum evento encontrado." });
-      return;
-    }
 
     res.status(200).json(eventos);
   } catch (error) {
