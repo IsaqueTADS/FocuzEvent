@@ -333,11 +333,14 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         .optional()
         .optional(),
       pesquisaTitulo: z.string().optional(),
-      isPago: z.preprocess((val) => {
-        if (val === "true") return true;
-        if (val === "false") return false;
-        return val;
-      }, z.boolean()).optional()
+      isPago: z
+        .preprocess((val) => {
+          if (val === "true") return true;
+          if (val === "false") return false;
+          return val;
+        }, z.boolean())
+        .optional(),
+      statusEvento: z.enum(["passado", "agora", "futuro"]).optional(),
     });
     const {
       cidadeId,
@@ -346,7 +349,8 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       pagina,
       total,
       pesquisaTitulo,
-      isPago
+      isPago,
+      statusEvento
     } = filtroSchema.parse(req.query);
 
     const paginacao: { skip?: number; take?: number } = {};
@@ -368,6 +372,27 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       };
     }
     if (isPago) filtroEventos.is_evento_pago = isPago;
+    const agora = new Date();
+
+    if (statusEvento === "passado") {
+      filtroEventos.data_hora_fim = {
+        lt: agora,
+      };
+    }
+
+    if (statusEvento === "futuro") {
+      filtroEventos.data_hora_inicio = {
+        gt: agora,
+      };
+    }
+
+    if (statusEvento === "agora") {
+      filtroEventos.AND = [
+        { data_hora_inicio: { lte: agora } },
+        { data_hora_fim: { gte: agora } },
+      ];
+    }
+
 
     const eventos = await prisma.evento.findMany({
       where: {
