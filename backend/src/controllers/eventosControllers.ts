@@ -340,7 +340,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
           return val;
         }, z.boolean())
         .optional(),
-      statusEvento: z.enum(["passado", "agora", "futuro", "todos"]).optional(),
+      statusEventos: z.enum(["passado", "agora", "futuro", "todos"]).optional(),
     });
     const {
       cidadeId,
@@ -350,7 +350,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       total,
       pesquisaTitulo,
       isPago,
-      statusEvento
+      statusEventos
     } = filtroSchema.parse(req.query);
 
     const paginacao: { skip?: number; take?: number } = {};
@@ -374,19 +374,19 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
     if (isPago) filtroEventos.is_evento_pago = isPago;
     const agora = new Date();
 
-    if (statusEvento === "passado") {
+    if (statusEventos === "passado") {
       filtroEventos.data_hora_fim = {
         lt: agora,
       };
     }
 
-    if (statusEvento === "futuro") {
+    if (statusEventos === "futuro") {
       filtroEventos.data_hora_inicio = {
         gt: agora,
       };
     }
 
-    if (statusEvento === "agora") {
+    if (statusEventos === "agora") {
       filtroEventos.AND = [
         { data_hora_inicio: { lte: agora } },
         { data_hora_fim: { gte: agora } },
