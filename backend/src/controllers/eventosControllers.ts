@@ -340,7 +340,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
           return val;
         }, z.boolean())
         .optional(),
-      statusEvento: z.enum(["passado", "agora", "futuro"]).optional(),
+      statusEvento: z.enum(["passado", "agora", "futuro", "todos"]).optional(),
     });
     const {
       cidadeId,
@@ -392,7 +392,6 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         { data_hora_fim: { gte: agora } },
       ];
     }
-
 
     const eventos = await prisma.evento.findMany({
       where: {
