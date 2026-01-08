@@ -1,5 +1,7 @@
 export default function calcularPeriodo(periodo?: string) {
-  if (!periodo) return undefined;
+  if (!periodo || periodo === "todo_periodo") {
+    return undefined;
+  }
 
   const agora = new Date();
 
