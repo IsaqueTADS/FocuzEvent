@@ -1,10 +1,4 @@
-export type PeriodoFiltro =
-  | "ultimos_3_meses"
-  | "ultimos_2_meses"
-  | "ultimo_mes"
-  | "ultima_semana";
-
-export function calcularPeriodo(periodo?: string) {
+export default function calcularPeriodo(periodo?: string) {
   if (!periodo) return undefined;
 
   const agora = new Date();
