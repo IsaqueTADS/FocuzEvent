@@ -153,8 +153,25 @@ export async function buscarTodosEventos(req: Request, res: Response) {
 export async function buscarEventosUsuario(req: Request, res: Response) {
   try {
     const { usuarioId } = req as AuthRequest;
+
+    const buscarEventosUsuarioSchema = z.object({
+      maisAcessados: z
+        .string()
+        .optional()
+        .transform((val) => (val ? Number(val) : undefined))
+        .refine(
+          (val) => val === undefined || (Number.isInteger(val) && val > 0),
+          { message: "maisAcessados deve ser um número inteiro positivo" }
+        ),
+    });
+
+    const { maisAcessados } = buscarEventosUsuarioSchema.parse(req.query);
+
     const eventosUsuario = await prisma.evento.findMany({
-      where: { usuario_id: usuarioId, ativo: true },
+      where: {
+        usuario_id: usuarioId,
+        ativo: true,
+      },
       include: {
         cidade: {
           select: {
@@ -176,19 +193,20 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
           },
         },
       },
-      orderBy: {
-        criado_em: "desc",
-      },
+      orderBy: maisAcessados ? { acessos: "desc" } : { criado_em: "desc" },
+      take: maisAcessados,
     });
 
     if (eventosUsuario.length === 0) {
-      res.status(404).json({ error: "Nenhum evento econtrado" });
-      return;
+      return res.status(404).json({ error: "Nenhum evento encontrado" });
     }
 
-    res.status(200).json(eventosUsuario);
-  } catch {
-    res.status(500).json({ error: "Erro interno no servidor" });
+    return res.status(200).json(eventosUsuario);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Dados inválidos" });
+    }
+    return res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
 
@@ -350,7 +368,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       total,
       pesquisaTitulo,
       isPago,
-      statusEventos
+      statusEventos,
     } = filtroSchema.parse(req.query);
 
     const paginacao: { skip?: number; take?: number } = {};
@@ -364,7 +382,8 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
 
     if (usuarioId) filtroEventos.usuario_id = usuarioId;
     if (cidadeId) filtroEventos.cidade_id = cidadeId;
-    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (categoriaEventoId)
+      filtroEventos.categoria_evento_id = categoriaEventoId;
     if (pesquisaTitulo) {
       filtroEventos.titulo = {
         contains: pesquisaTitulo,
@@ -618,7 +637,8 @@ export async function buscarEventosImpulsionadoFiltro(
 
     if (usuarioId) filtroEventos.usuario_id = usuarioId;
     if (cidadeId) filtroEventos.cidade_id = cidadeId;
-    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (categoriaEventoId)
+      filtroEventos.categoria_evento_id = categoriaEventoId;
     if (pesquisaTitulo) {
       filtroEventos.titulo = {
         contains: pesquisaTitulo,
