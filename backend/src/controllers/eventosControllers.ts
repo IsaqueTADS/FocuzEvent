@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { Request, Response } from "express";
+import calcularPeriodo from "src/utils/calcularPeriodo";
 import prisma from "src/utils/prisma";
 import { AuthRequest } from "src/utils/type";
 import { z } from "zod";
@@ -163,14 +164,29 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
           (val) => val === undefined || (Number.isInteger(val) && val > 0),
           { message: "maisAcessados deve ser um número inteiro positivo" }
         ),
+
+      periodo: z
+        .enum([
+          "todo_periodo",
+          "ultimos_3_meses",
+          "ultimos_3_meses",
+          "ultimo_mes",
+          "ultima_semana",
+        ])
+        .optional(),
     });
 
-    const { maisAcessados } = buscarEventosUsuarioSchema.parse(req.query);
+    const { maisAcessados, periodo } = buscarEventosUsuarioSchema.parse(
+      req.query
+    );
+
+    const filtroPeriodo = calcularPeriodo(periodo);
 
     const eventosUsuario = await prisma.evento.findMany({
       where: {
         usuario_id: usuarioId,
         ativo: true,
+        criado_em: filtroPeriodo,
       },
       include: {
         cidade: {
@@ -197,15 +213,12 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
       take: maisAcessados,
     });
 
-    if (eventosUsuario.length === 0) {
-      return res.status(404).json({ error: "Nenhum evento encontrado" });
-    }
-
     return res.status(200).json(eventosUsuario);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: "Dados inválidos" });
     }
+
     return res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
@@ -382,8 +395,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
 
     if (usuarioId) filtroEventos.usuario_id = usuarioId;
     if (cidadeId) filtroEventos.cidade_id = cidadeId;
-    if (categoriaEventoId)
-      filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
     if (pesquisaTitulo) {
       filtroEventos.titulo = {
         contains: pesquisaTitulo,
@@ -637,8 +649,7 @@ export async function buscarEventosImpulsionadoFiltro(
 
     if (usuarioId) filtroEventos.usuario_id = usuarioId;
     if (cidadeId) filtroEventos.cidade_id = cidadeId;
-    if (categoriaEventoId)
-      filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
     if (pesquisaTitulo) {
       filtroEventos.titulo = {
         contains: pesquisaTitulo,
