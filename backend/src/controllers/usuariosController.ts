@@ -105,7 +105,7 @@ export async function buscarPerfilUsuario(req: Request, res: Response) {
 export async function atualizarNome(req: Request, res: Response) {
   try {
     const nomeSchme = z.object({
-      nome: z.string(),
+      nome: z.string().min(3).max(25),
     });
     const { usuarioId } = req as AuthRequest;
     const { nome } = nomeSchme.parse(req.body);
