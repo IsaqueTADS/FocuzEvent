@@ -7,6 +7,7 @@ export default async function buscarTodosEstados(req: Request, res: Response) {
       select: {
         id: true,
         nome: true,
+        uf: true,
       },
     });
     res.status(200).json(estados);
