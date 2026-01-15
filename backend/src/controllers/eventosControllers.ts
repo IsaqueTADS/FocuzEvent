@@ -302,8 +302,9 @@ export async function buscarEvento(req: Request, res: Response) {
       include: {
         cidade: {
           select: {
+            id: true,
             nome: true,
-            estado: { select: { uf: true, nome: true } },
+            estado: { select: { id: true, uf: true, nome: true } },
           },
         },
         usuario: {
