@@ -162,7 +162,7 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
         .transform((val) => (val ? Number(val) : undefined))
         .refine(
           (val) => val === undefined || (Number.isInteger(val) && val > 0),
-          { message: "maisAcessados deve ser um número inteiro positivo" }
+          { message: "maisAcessados deve ser um número inteiro positivo" },
         ),
 
       periodo: z
@@ -177,7 +177,7 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
     });
 
     const { maisAcessados, periodo } = buscarEventosUsuarioSchema.parse(
-      req.query
+      req.query,
     );
 
     const filtroPeriodo = calcularPeriodo(periodo);
@@ -372,7 +372,12 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
           return val;
         }, z.boolean())
         .optional(),
-      statusEventos: z.enum(["passado", "agora", "futuro", "todos"]).optional(),
+      statusEventos: z
+        .enum(["passado", "agora", "futuro", "agoraFuturo", "todos"])
+        .optional(),
+      maisAcessados: z
+        .preprocess((val) => val === "true", z.boolean())
+        .optional(),
     });
     const {
       cidadeId,
@@ -383,6 +388,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       pesquisaTitulo,
       isPago,
       statusEventos,
+      maisAcessados
     } = filtroSchema.parse(req.query);
 
     const paginacao: { skip?: number; take?: number } = {};
@@ -424,6 +430,9 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         { data_hora_fim: { gte: agora } },
       ];
     }
+    const orderBy: Prisma.EventoOrderByWithRelationInput = maisAcessados
+      ? { acessos: "desc" }
+      : { criado_em: "desc" };
 
     const eventos = await prisma.evento.findMany({
       where: {
@@ -434,9 +443,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         ativo: true,
       },
       ...paginacao,
-      orderBy: {
-        criado_em: "desc",
-      },
+      orderBy,
 
       include: {
         cidade: {
@@ -614,7 +621,7 @@ export async function atualiarEvento(req: Request, res: Response) {
 
 export async function buscarEventosImpulsionadoFiltro(
   req: Request,
-  res: Response
+  res: Response,
 ) {
   try {
     const dataAtual = new Date();
@@ -722,7 +729,7 @@ export async function buscarEventosImpulsionadoFiltro(
 
 export async function buscarEventoImpulsionadoUnico(
   req: Request,
-  res: Response
+  res: Response,
 ) {
   try {
     const { impulsoEventoId } = req.params;
