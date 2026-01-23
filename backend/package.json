@@ -8,7 +8,10 @@
     "start": "node build/server.js",
     "build": "tsup src --format esm --out-dir build",
     "seed": "tsx prisma/seed.ts",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "db:generate": "npx prisma  generate",
+    "db:migrate": "npx prisma  migrate dev",
+    "db:studio": "npx prisma  studio"
   },
   "prisma": {},
   "keywords": [],

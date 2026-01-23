@@ -24,6 +24,8 @@ model Usuario {
   role          Role     @default(USUARIO)
   Eventos       Evento[]
   ativo         Boolean  @default(true)
+  codigoRecuperacaoHash   String?
+  codigoRecuperacaoExpira DateTime?
 
   @@map("usuarios")
 }
