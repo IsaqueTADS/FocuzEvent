@@ -1,11 +1,6 @@
 import nodemailer from "nodemailer";
 import { env } from "src/env";
 
-console.log({
-  user: env.EMAIL_USUARIO,
-  pass: env.EMAIL_SENHA_APP,
-});
-
 const transportadorEmail = nodemailer.createTransport({
   service: "gmail",
   auth: {

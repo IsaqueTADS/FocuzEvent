@@ -137,7 +137,6 @@ export async function recuperarSenha(req: Request, res: Response) {
       },
     });
 
-    console.log("testando");
     await enviarEmailRecuperacao(usuario.email, codigo);
 
     res.json({
@@ -145,7 +144,6 @@ export async function recuperarSenha(req: Request, res: Response) {
     });
     return;
   } catch (err) {
-    console.log(err);
     res.status(500).json({ error: "Erro interno ao tentar logar usuarios" });
   }
 }
