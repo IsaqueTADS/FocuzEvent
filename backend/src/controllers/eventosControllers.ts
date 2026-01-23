@@ -168,7 +168,7 @@ export async function buscarEventosUsuario(req: Request, res: Response) {
       periodo: z
         .enum([
           "todo_periodo",
-          "ultimos_3_meses",
+          "ultimos_2_meses",
           "ultimos_3_meses",
           "ultimo_mes",
           "ultima_semana",
