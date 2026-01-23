@@ -9,6 +9,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   STRIPE_SECRET_KEY: z.string(),
   STRIPE_WEBHOOK_SECRET: z.string(),
+  EMAIL_USUARIO: z.email(),
+  EMAIL_SENHA_APP: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

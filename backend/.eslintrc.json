@@ -18,6 +18,8 @@
     "@typescript-eslint"
   ],
   "rules": {
+    "no-underscore-dangle": "off",
+    "import/prefer-default-export": "off",
     "linebreak-style": "off",
     "operator-linebreak": "off",
     "object-curly-newline": "off",
@@ -25,15 +27,6 @@
     "no-console": "off",
     "camelcase": "off",
     "newline-per-chained-call": "off",
-    "no-underscore-dangle": [
-      "error",
-      {
-        "allow": [
-          "__filename",
-          "__dirname"
-        ]
-      }
-    ],
     "semi": [
       "error",
       "always"
