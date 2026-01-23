@@ -13,6 +13,7 @@ const authRouter = express.Router();
 authRouter.post("/register", criarUsuario);
 authRouter.post("/login", logarUsuario);
 authRouter.post("/recuperar-senha", recuperarSenha);
+authRouter.post("/redefinir-senha", );
 authRouter.get("/token/validar", autenticacao, verificarToken);
 
 export default authRouter;

@@ -150,4 +150,66 @@ export async function recuperarSenha(req: Request, res: Response) {
   }
 }
 
-console.log("chamou");
+export async function redefinirSenha(req: Request, res: Response) {
+  try {
+    const authSchema = z.object({
+      email: z.email(),
+      codigo: z.string(),
+      novaSenha: z.string().min(8),
+    });
+
+    const validacao = authSchema.safeParse(req.body);
+
+    if (validacao.success === false) {
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
+    }
+
+    const { email, codigo, novaSenha } = validacao.data;
+
+    const usuario = await prisma.usuario.findUnique({
+      where: { email },
+    });
+
+    if (
+      !usuario ||
+      !usuario.codigoRecuperacaoHash ||
+      !usuario.codigoRecuperacaoExpira
+    ) {
+      res.status(400).json({ error: "Código inválido" });
+      return;
+    }
+
+    if (usuario.codigoRecuperacaoExpira < new Date()) {
+      res.status(400).json({ error: "Código expirado" });
+      return;
+    }
+
+    const codigoValido = await bcrypt.compare(
+      codigo,
+      usuario.codigoRecuperacaoHash,
+    );
+
+    if (!codigoValido) {
+      res.status(400).json({ error: "Código inválido" });
+      return;
+    }
+
+    const senhaHash = await bcrypt.hash(novaSenha, 10);
+
+    await prisma.usuario.update({
+      where: { id: usuario.id },
+      data: {
+        senha: senhaHash,
+        codigoRecuperacaoHash: null,
+        codigoRecuperacaoExpira: null,
+      },
+    });
+
+    res.json({
+      mensagem: "Senha redefinida com sucesso.",
+    });
+  } catch {
+    res.status(500).json({ error: "Erro interno ao tentar logar usuarios" });
+  }
+}
