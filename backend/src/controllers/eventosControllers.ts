@@ -430,6 +430,21 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
         { data_hora_fim: { gte: agora } },
       ];
     }
+
+    if (statusEventos === "agoraFuturo") {
+      filtroEventos.OR = [
+        {
+          AND: [
+            { data_hora_inicio: { lte: agora } },
+            { data_hora_fim: { gte: agora } },
+          ],
+        },
+        {
+          data_hora_inicio: { gt: agora },
+        },
+      ];
+    }
+
     const orderBy: Prisma.EventoOrderByWithRelationInput = maisAcessados
       ? { acessos: "desc" }
       : { criado_em: "desc" };
