@@ -16,7 +16,8 @@ export async function criarImpulso(req: Request, res: Response) {
       dataHoraFim: z.iso.datetime(),
     });
 
-    const { eventoId, impulsoId, dataHoraInicio, dataHoraFim } = impulsoSchema.parse(req.body);
+    const { eventoId, impulsoId, dataHoraInicio, dataHoraFim } =
+      impulsoSchema.parse(req.body);
 
     const evento = await prisma.evento.findFirst({
       where: {
@@ -120,7 +121,7 @@ export async function criarImpulso(req: Request, res: Response) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      success_url: `http://localhost:5173/perfil/evento/impulso/${novoImpulso.id}`,
+      success_url: `http://localhost:5173/eventos/impulsionado/${novoImpulso.id}`,
       cancel_url: `http://localhost:5173/erro?impulso_id=${novoImpulso.id}`,
       line_items: [
         {
@@ -193,10 +194,23 @@ export async function atualizarBannerImpulso(req: Request, res: Response) {
 
 export async function buscarEventosImpulsionadoUsuario(
   req: Request,
-  res: Response
+  res: Response,
 ) {
   try {
     const { usuarioId } = req as AuthRequest;
+
+    const pagina = Number(req.query.page) || 1;
+    const total = Number(req.query.total) || 10;
+
+    const skip = (pagina - 1) * total;
+    const take = total;
+
+    const totalRegistros = await prisma.evento.count({
+      where: {
+        usuario_id: usuarioId,
+        is_impulsonado: true,
+      },
+    });
 
     const impulsos = await prisma.impulsoEvento.findMany({
       where: {
@@ -204,13 +218,47 @@ export async function buscarEventosImpulsionadoUsuario(
           usuario_id: usuarioId,
         },
       },
+      include: {
+        evento: {
+          include: {
+            cidade: {
+              select: {
+                id: true,
+                nome: true,
+                estado: { select: { id: true, uf: true, nome: true } },
+              },
+            },
+            usuario: {
+              select: {
+                id: true,
+                nome: true,
+                foto_url: true,
+              },
+            },
+            categoriaEvento: {
+              select: {
+                id: true,
+                titulo: true,
+              },
+            },
+          },
+        },
+      },
+      take,
+      skip,
     });
 
     if (impulsos.length === 0) {
-      res.status(404).json({ error: "Nenhum impulso econtrado." });
+      res.status(200).json({ messagem: "Nenhum impulso econtrado." });
+      return;
     }
 
-    res.status(200).json(impulsos);
+    res.status(200).json({
+      pagina,
+      total,
+      totalRegistros,
+      impulsos,
+    });
   } catch {
     res.status(500).json({ error: "Erro interno no servidor." });
   }
