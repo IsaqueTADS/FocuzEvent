@@ -246,6 +246,9 @@ export async function buscarEventosImpulsionadoUsuario(
       },
       take,
       skip,
+      orderBy: {
+        criado_em: "desc",
+      },
     });
 
     if (impulsos.length === 0) {
