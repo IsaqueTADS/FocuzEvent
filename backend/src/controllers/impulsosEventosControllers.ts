@@ -251,11 +251,6 @@ export async function buscarEventosImpulsionadoUsuario(
       },
     });
 
-    if (impulsos.length === 0) {
-      res.status(200).json({ messagem: "Nenhum impulso econtrado." });
-      return;
-    }
-
     res.status(200).json({
       pagina,
       total,
