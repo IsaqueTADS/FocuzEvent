@@ -388,7 +388,7 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
       pesquisaTitulo,
       isPago,
       statusEventos,
-      maisAcessados
+      maisAcessados,
     } = filtroSchema.parse(req.query);
 
     const paginacao: { skip?: number; take?: number } = {};
@@ -402,7 +402,8 @@ export async function buscarEventosFiltrados(req: Request, res: Response) {
 
     if (usuarioId) filtroEventos.usuario_id = usuarioId;
     if (cidadeId) filtroEventos.cidade_id = cidadeId;
-    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (categoriaEventoId)
+      filtroEventos.categoria_evento_id = categoriaEventoId;
     if (pesquisaTitulo) {
       filtroEventos.titulo = {
         contains: pesquisaTitulo,
@@ -673,7 +674,8 @@ export async function buscarEventosImpulsionadoFiltro(
 
     if (usuarioId) filtroEventos.usuario_id = usuarioId;
     if (cidadeId) filtroEventos.cidade_id = cidadeId;
-    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (categoriaEventoId)
+      filtroEventos.categoria_evento_id = categoriaEventoId;
     if (pesquisaTitulo) {
       filtroEventos.titulo = {
         contains: pesquisaTitulo,
@@ -747,7 +749,21 @@ export async function buscarEventoImpulsionadoUnico(
   res: Response,
 ) {
   try {
-    const { impulsoEventoId } = req.params;
+    const paramsSchema = z.object({
+      impulsoEventoId: z.string(),
+    });
+    const querySchema = z.object({
+      contarAcessos: z.preprocess((val) => {
+        if (val === "true") return true;
+        if (val === "false") return false;
+        return val;
+      }, z.boolean()),
+    });
+
+    const { impulsoEventoId } = paramsSchema.parse(req.params);
+
+    const { contarAcessos } = querySchema.parse(req.query);
+
     const dataAtual = new Date();
 
     const evento = await prisma.impulsoEvento.findFirst({
@@ -792,19 +808,23 @@ export async function buscarEventoImpulsionadoUnico(
       return;
     }
 
-    await prisma.impulsoEvento.update({
-      where: {
-        id: evento.id,
-      },
-      data: {
-        acessos: {
-          increment: 1,
+    if (contarAcessos !== false) {
+      await prisma.impulsoEvento.update({
+        where: { id: evento.id },
+        data: {
+          acessos: { increment: 1 },
         },
-      },
-    });
+      });
+    }
 
     res.status(200).json(evento);
-  } catch {
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      res.status(400).json({ error: "Dados inválidos" });
+      return;
+    }
+
+    console.error(error);
     res.status(500).json({ error: "Erro interno no servidor." });
   }
 }
