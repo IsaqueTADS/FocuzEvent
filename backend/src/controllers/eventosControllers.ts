@@ -674,8 +674,7 @@ export async function buscarEventosImpulsionadoFiltro(
 
     if (usuarioId) filtroEventos.usuario_id = usuarioId;
     if (cidadeId) filtroEventos.cidade_id = cidadeId;
-    if (categoriaEventoId)
-      filtroEventos.categoria_evento_id = categoriaEventoId;
+    if (categoriaEventoId) filtroEventos.categoria_evento_id = categoriaEventoId;
     if (pesquisaTitulo) {
       filtroEventos.titulo = {
         contains: pesquisaTitulo,
@@ -687,6 +686,7 @@ export async function buscarEventosImpulsionadoFiltro(
       where: {
         status_pagamento: "PAGO",
         data_hora_fim: { gte: dataAtual },
+        data_hora_inicio: { lte: dataAtual },
         evento: {
           ativo: true,
           ...filtroEventos,
